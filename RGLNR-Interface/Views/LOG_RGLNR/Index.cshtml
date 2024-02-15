@@ -1,0 +1,176 @@
+﻿<link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
+
+<div class="row mb-3">
+    <div class="col">
+        <input type="text" id="minRGLNR" class="form-control" placeholder="Min RGLNR" aria-label="Min RGLNR">
+    </div>
+    <div class="col">
+        <input type="text" id="maxRGLNR" class="form-control" placeholder="Max RGLNR" aria-label="Max RGLNR">
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-sm">
+        <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="Zeitraum auswählen" />
+    </div>
+    <div class="col-sm">
+        <select id="companyFilter" class="form-select">
+            <option value="">Alle Firmen</option>
+            <option value="DN100">Wünsche Handelsgesellschaft International Gmb [100]</option>
+            <option value="DN200">Dario GmbH & Co. KG [200]</option>
+            <option value="DN400">Wünsche Fashion GmbH & Co. KG [400]</option>
+            <option value="DN420">Duo Fashion GmbH [420]</option>
+            <option value="DN510">Globaltronics GmbH & Co. KG [510]</option>
+            <option value="AR">Müller-Licht International GmbH [575]</option>
+        </select>
+    </div>
+</div>
+
+
+<!--
+<div class="row mb-3">
+    <div class="col">
+        <input type="text" id="axrgnrFilter" class="form-control" placeholder="Nach Rechnungen durch Komma getrennt filtern" />
+    </div>
+</div>
+-->
+
+
+<table id="logRGLNRTable" class="display" style="width:100%" float="left">
+    <thead>
+        <tr>
+            <th>Rechnungslisten<br />nummer</th>
+            <th>AX-Rechnungsnummer</th>
+            <th>Abgabedatum</th>
+            <th>Aktionsnummer</th>
+            <th>Sender GLN</th>
+            <th>Sendername</th>
+            <th>Empfänger GLN</th>
+            <th>Empfängername</th>
+            <th>Rechnungs<br />betrag</th>
+        </tr>
+    </thead>
+</table>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#logRGLNRTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "colReorder": true,
+                "dom": "lfrBtip",
+                "oLanguage": {
+                    "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
+                    "sSearch": "Allgemeine Suche:"
+                },
+                buttons: [
+                              {
+                extend: 'copy',
+                    exportOptions: {
+                        columns: ':visible'
+                    },
+                    text: 'Kopieren'
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }, 
+                { 
+                    extend: 'colvis', 
+                    text: 'Spalten ein- und ausblenden' 
+                } 
+                ],
+
+                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle [! Nur bei gefilterten Daten anwenden !]"]],
+
+                "ajax": {
+                    "url": "@Url.Action("LoadData", "LOG_RGLNR")", 
+                    "type": "POST",
+                    "data": function (d) {
+                        d.minRGLNR = $("#minRGLNR").val();
+                        d.maxRGLNR = $("#maxRGLNR").val();
+                        var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
+                        if ($("#abgdatumzeitRange").val()) {
+                            d.startDate = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
+                            d.endDate = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
+                        } else {
+                            d.startDate = null;
+                            d.endDate = null;
+                        }
+                        d.companyPrefix = $('#companyFilter').val();
+                    }
+                },
+
+                "columns": [
+                    { "data": "rglnr" },
+                    { "data": "axrgnr" },
+                    { "data": "abgdatumzeit", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
+                    { "data": "aktionsnummer" },
+                    { "data": "sendergln" },
+                    { "data": "sendername" },
+                    { "data": "empfgln" },
+                    { "data": "empfname" },
+                    { "data": "rgbetrag" }
+                ],
+                "order": [[2, "desc"]]
+            });
+
+            $('#abgdatumzeitRange').daterangepicker({
+                timePicker: true,
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: "DD.MM.YYYY HH:mm"
+                }
+            });
+
+            $('#abgdatumzeitRange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD HH:mm') + ' - ' + picker.endDate.format('YYYY-MM-DD HH:mm'));
+                table.draw();
+            });
+
+            $('#abgdatumzeitRange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                table.draw();
+            });
+
+            $("#minRGLNR, #maxRGLNR").keyup(function() {
+                table.draw();
+            });
+            $('#companyFilter').on('change', function() {
+                table.draw();
+            });
+        });
+    </script>
+}
+
