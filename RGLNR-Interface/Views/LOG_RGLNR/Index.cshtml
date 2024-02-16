@@ -5,20 +5,20 @@
 
 <div class="row mb-3">
     <div class="col">
-        <input type="text" id="minRGLNR" class="form-control" placeholder="Min RGLNR" aria-label="Min RGLNR">
+        <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
     </div>
     <div class="col">
-        <input type="text" id="maxRGLNR" class="form-control" placeholder="Max RGLNR" aria-label="Max RGLNR">
+        <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
     </div>
 </div>
 <div class="row mb-3">
     <div class="col-sm">
-        <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="Zeitraum auswählen" />
+        <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="&#128197; Zeitraum auswählen" />
     </div>
     <div class="col-sm">
         <select id="companyFilter" class="form-select">
-            <option value="">Alle Firmen</option>
-            <option value="DN100">Wünsche Handelsgesellschaft International Gmb [100]</option>
+            <option value="">&#9776; Alle Mandanten</option>
+            <option value="DN100">Wünsche Handelsgesellschaft International mbH und Co. KG [100]</option>
             <option value="DN200">Dario GmbH & Co. KG [200]</option>
             <option value="DN400">Wünsche Fashion GmbH & Co. KG [400]</option>
             <option value="DN420">Duo Fashion GmbH [420]</option>
@@ -52,9 +52,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
+        moment.locale('de');
         $(document).ready(function () {
             var table = $('#logRGLNRTable').DataTable({
                 "processing": true,
@@ -63,7 +64,7 @@
                 "dom": "lfrBtip",
                 "oLanguage": {
                     "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
-                    "sSearch": "Allgemeine Suche:"
+                    "sSearch": "&#128269; Allgemeine Suche:"
                 },
                 buttons: [
                               {
@@ -95,7 +96,8 @@
                     extend: 'print',
                     exportOptions: {
                         columns: ':visible'
-                    }
+                    },
+                    text: 'Drucken'
                 }, 
                 { 
                     extend: 'colvis', 
@@ -103,7 +105,7 @@
                 } 
                 ],
 
-                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle [! Nur bei gefilterten Daten anwenden !]"]],
+                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle [! Nur auf gefilterte Daten anwenden !]"]],
 
                 "ajax": {
                     "url": "@Url.Action("LoadData", "LOG_RGLNR")", 
@@ -122,7 +124,6 @@
                         d.companyPrefix = $('#companyFilter').val();
                     }
                 },
-
                 "columns": [
                     { "data": "rglnr" },
                     { "data": "axrgnr" },
@@ -139,9 +140,11 @@
 
             $('#abgdatumzeitRange').daterangepicker({
                 timePicker: true,
+                timePicker24Hour: true,
                 autoUpdateInput: false,
                 locale: {
-                    cancelLabel: 'Clear',
+                    cancelLabel: 'Zurücksetzen',
+                    applyLabel: 'Anwenden',
                     format: "DD.MM.YYYY HH:mm"
                 }
             });

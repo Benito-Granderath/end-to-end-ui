@@ -30,7 +30,6 @@ body {
     border-radius: 10px 10px 0 0;
     overflow: hidden; 
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    font-family: 'Trebuchet MS'
 }
     .display thead tr {
         background-color: #2651decf;
