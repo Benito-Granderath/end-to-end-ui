@@ -1,14 +1,10 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using RGLNR_Interface.Models;
 using System.Data;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 using System.Globalization;
-using System;
+
 
 namespace RGLNR_Interface.Controllers
 {
@@ -41,6 +37,8 @@ namespace RGLNR_Interface.Controllers
                 var startDateStr = HttpContext.Request.Form["startDate"].FirstOrDefault();
                 var endDateStr = HttpContext.Request.Form["endDate"].FirstOrDefault();
                 var companyPrefix = HttpContext.Request.Form["companyPrefix"].FirstOrDefault();
+                var startDateFälligStr = HttpContext.Request.Form["faelligStart"].FirstOrDefault();
+                var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
 
 
                 DateTime? parsedStartDate = null, parsedEndDate = null;
@@ -54,13 +52,24 @@ namespace RGLNR_Interface.Controllers
                 {
                     parsedEndDate = endDate;
                 }
+                DateTime? parsedStartDateFällig = null, parsedEndDateFällig = null;
+
+                if (DateTime.TryParseExact(startDateFälligStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligStart))
+                {
+                    parsedStartDateFällig = faelligStart;
+                }
+
+                if (DateTime.TryParseExact(endDateFälligStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligEnd))
+                {
+                    parsedEndDateFällig = faelligEnd;
+                }
 
 
-                string baseQuery = @"FROM [wsmb].[dbo].[LOG_RGLNR] WHERE RGLNR != 0";
+                string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BEN] WHERE 1=1";
 
                 if (parsedStartDate.HasValue && parsedEndDate.HasValue)
                 {
-                    baseQuery += " AND ABGDATUMZEIT BETWEEN @startDate AND @endDate";
+                    baseQuery += " AND Datum BETWEEN @startDate AND @endDate";
                 }
                 if (minRGLNRParsed)
                 {
@@ -70,26 +79,23 @@ namespace RGLNR_Interface.Controllers
                 {
                     baseQuery += " AND RGLNR <= @maxRGLNR";
                 }
+                if (parsedStartDateFällig.HasValue && parsedEndDateFällig.HasValue)
+                {
+                    baseQuery += " AND Fällig BETWEEN @faelligStart AND @faelligEnd";
+                }
                 if (!string.IsNullOrEmpty(searchValue))
                 {
-                    baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR AXRGNR LIKE @searchValue)";
+                    baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue)";
                 }
 
                 if (!string.IsNullOrEmpty(companyPrefix))
                 {
-                    if (companyPrefix == "AR")
-                    {
-                        baseQuery += " AND AXRGNR LIKE @companyPrefix + '%'";
-                    }
-                    else
-                    {
-                        baseQuery += " AND AXRGNR LIKE @companyPrefix + '%'";
-                    }
+                    baseQuery += " AND Rechnung LIKE @companyPrefix + '%'";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [AXRGNR], [ABGDATUMZEIT], [AKTIONSNUMMER], [SENDERGLN], [SENDERNAME], [EMPFGLN], [EMPFNAME], [RGBETRAG] " +
+                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
                                    baseQuery +
-                                   " ORDER BY RGLNR OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                                   " ORDER BY Datum DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
 
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;
 
@@ -102,16 +108,18 @@ namespace RGLNR_Interface.Controllers
                     maxRGLNR = maxRGLNRParsed ? maxRGLNR : (object)DBNull.Value,
                     startDate = parsedStartDate,
                     endDate = parsedEndDate,
+                    faelligStart = parsedStartDateFällig,
+                    faelligEnd = parsedEndDateFällig,
                     companyPrefix,
                     start,
                     length
                 };
 
-                var data = await db.QueryAsync<LOG_RGLNR_Model>(dataQuery, parameters);
+                var data = await db.QueryAsync<LOG_RGLNR_Model>(dataQuery, parameters, commandTimeout: 120); 
 
                 var recordsFiltered = await db.ExecuteScalarAsync<int>(filteredCountQuery, parameters);
 
-                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[LOG_RGLNR] WHERE RGLNR != 0");
+                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BEN]");
 
                 db.Close();
 

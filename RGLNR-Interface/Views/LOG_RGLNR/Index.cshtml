@@ -12,8 +12,14 @@
     </div>
 </div>
 <div class="row mb-3">
-    <div class="col-sm">
-        <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="&#128197; Zeitraum auswählen" />
+    <div class="col-md">
+        <div class="input-group">
+            <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="&#128197; Zeitraum auswählen für" />
+            <select id="dateColumnFilter" class="form-select">
+                <option value="datum">Datum</option>
+                <option value="fällig">Fälligkeit</option>
+            </select>
+        </div>
     </div>
     <div class="col-sm">
         <select id="companyFilter" class="form-select">
@@ -27,21 +33,16 @@
         </select>
     </div>
 </div>
-
-
-
 <table id="logRGLNRTable" class="display" style="width:100%" float="left">
     <thead>
         <tr>
-            <th>Rechnungslisten<br />nummer</th>
-            <th>AX-Rechnungsnummer</th>
-            <th>Abgabedatum</th>
-            <th>Aktionsnummer</th>
-            <th>Sender GLN</th>
-            <th>Sendername</th>
-            <th>Empfänger GLN</th>
-            <th>Empfängername</th>
-            <th>Rechnungs<br />betrag</th>
+            <th>Rechnungslisten<br/> nummer</th>
+            <th>AX Rechnungsnummer</th>
+            <th>Datum</th>
+            <th>Fällig</th>
+            <th>Rechnungsbetrag</th>
+            <th>EDI-Rechnung</th>
+            <th>Lobster Profil</th>
         </tr>
     </thead>
 </table>
@@ -62,6 +63,7 @@
                 "serverSide": true,
                 "colReorder": true,
                 "dom": "lfrBtip",
+                "iDisplayLength": 10,
                 "oLanguage": {
                     "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
                     "sSearch": "&#128269; Allgemeine Suche:"
@@ -105,7 +107,7 @@
                 } 
                 ],
 
-                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle [! Nur auf gefilterte Daten anwenden !]"]],
+                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle | ⚠ Nur auf gefilterte Daten anwenden ⚠"]],
 
                 "ajax": {
                     "url": "@Url.Action("LoadData", "LOG_RGLNR")", 
@@ -115,32 +117,52 @@
                         d.maxRGLNR = $("#maxRGLNR").val();
                         var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
                         if ($("#abgdatumzeitRange").val()) {
-                            d.startDate = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
-                            d.endDate = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
-                        } else {
-                            d.startDate = null;
-                            d.endDate = null;
-                        }
+                            var selectedColumn = $('#dateColumnFilter').val();
+                            if (selectedColumn === 'datum') {
+                                d.startDate = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
+                                d.endDate = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
+                                d.faelligStart = null;
+                                d.faelligEnd = null;
+                            } else {
+                                d.faelligStart = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
+                                d.faelligEnd = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
+                                d.startDate = null;
+                                d.endDate = null;
+                                }
+                            } else {
+                                d.startDate = null;
+                                d.endDate = null;
+                                d.faelligStart = null;
+                                d.faelligEnd = null;
+                            }
                         d.companyPrefix = $('#companyFilter').val();
                     }
                 },
                 "columns": [
                     { "data": "rglnr" },
-                    { "data": "axrgnr" },
-                    { "data": "abgdatumzeit", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
-                    { "data": "aktionsnummer" },
-                    { "data": "sendergln" },
-                    { "data": "sendername" },
-                    { "data": "empfgln" },
-                    { "data": "empfname" },
-                    { "data": "rgbetrag" }
+                    { "data": "rechnung" },
+                    { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
+                    { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
+                    { "data": "rechnungsbetrag" },
+                    { 
+                        "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
+                        "render": function (data, type, row) {
+                            if (data === 'Überrtagen') {
+                                return 'Ja';
+                            } else if (data === 'Bereit') {
+                                return 'Nein';
+                            } else {
+                                return data; 
+                            }
+                        }
+                    },
+                    { "data": "profile_name" }
                 ],
                 "order": [[2, "desc"]]
             });
 
             $('#abgdatumzeitRange').daterangepicker({
-                timePicker: true,
-                timePicker24Hour: true,
+                
                 autoUpdateInput: false,
                 locale: {
                     cancelLabel: 'Zurücksetzen',
@@ -156,6 +178,9 @@
 
             $('#abgdatumzeitRange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
+                table.draw();
+            });
+            $('#dateColumnFilter').on('change', function () {
                 table.draw();
             });
 

@@ -49,3 +49,6 @@ body {
 
 
 
+.input-group > .form-select, .input-group > .form-control {
+    margin-right: 0px; 
+}
