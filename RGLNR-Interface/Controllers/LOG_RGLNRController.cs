@@ -4,6 +4,8 @@ using Microsoft.Data.SqlClient;
 using RGLNR_Interface.Models;
 using System.Data;
 using System.Globalization;
+using Microsoft.Extensions.Configuration;
+using RGLNR_Interface.Services;
 
 
 namespace RGLNR_Interface.Controllers
@@ -11,15 +13,16 @@ namespace RGLNR_Interface.Controllers
     public class LOG_RGLNRController : Controller
     {
         private readonly IConfiguration _configuration;
-
         public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger)
         {
             _configuration = configuration;
         }
 
-
         public IActionResult Index()
         {
+            var adService = new ActiveDirectoryService();
+            var department = adService.GetUserDepartment();
+            ViewBag.Department = department;
             return View();
         }
         [HttpPost]
@@ -90,7 +93,7 @@ namespace RGLNR_Interface.Controllers
 
                 if (!string.IsNullOrEmpty(companyPrefix))
                 {
-                    baseQuery += " AND Rechnung LIKE @companyPrefix + '%'";
+                    baseQuery += " AND DataAreaId = @companyPrefix";
                 }
 
                 string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +

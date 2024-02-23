@@ -3,6 +3,9 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
 
 
+<h1>Hallo, @ViewBag.Department :)</h1>
+
+
 <div class="row mb-3">
     <div class="col">
         <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
@@ -14,7 +17,7 @@
 <div class="row mb-3">
     <div class="col-md">
         <div class="input-group">
-            <input type="text" name="dates" id="abgdatumzeitRange" class="form-control" placeholder="&#128197; Zeitraum auswählen für" />
+            <input type="text" name="dates" id="abgdatumzeitRange" class="form-select" placeholder="&#128197; Zeitraum auswählen für" />
             <select id="dateColumnFilter" class="form-select">
                 <option value="datum">Datum</option>
                 <option value="fällig">Fälligkeit</option>
@@ -24,20 +27,20 @@
     <div class="col-sm">
         <select id="companyFilter" class="form-select">
             <option value="">&#9776; Alle Mandanten</option>
-            <option value="DN100">Wünsche Handelsgesellschaft International mbH und Co. KG [100]</option>
-            <option value="DN200">Dario GmbH & Co. KG [200]</option>
-            <option value="DN400">Wünsche Fashion GmbH & Co. KG [400]</option>
-            <option value="DN420">Duo Fashion GmbH [420]</option>
-            <option value="DN510">Globaltronics GmbH & Co. KG [510]</option>
-            <option value="AR">Müller-Licht International GmbH [575]</option>
+            <option value="100">Wünsche Handelsgesellschaft International mbH und Co. KG [100]</option>
+            <option value="200">Dario GmbH & Co. KG [200]</option>
+            <option value="400">Wünsche Fashion GmbH & Co. KG [400]</option>
+            <option value="420">Duo Fashion GmbH [420]</option>
+            <option value="510">Globaltronics GmbH & Co. KG [510]</option>
+            <option value="575">Müller-Licht International GmbH [575]</option>
         </select>
     </div>
 </div>
 <table id="logRGLNRTable" class="display" style="width:100%" float="left">
     <thead>
         <tr>
-            <th>Rechnungslisten<br/> nummer</th>
-            <th>AX Rechnungsnummer</th>
+            <th>Rechnungslistennummer</th>
+            <th>Rechnungsnummer</th>
             <th>Datum</th>
             <th>Fällig</th>
             <th>Rechnungsbetrag</th>
@@ -141,8 +144,8 @@
                 "columns": [
                     { "data": "rglnr" },
                     { "data": "rechnung" },
-                    { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
-                    { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY HH:mm"); } },
+                    { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
+                    { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "rechnungsbetrag" },
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
@@ -160,7 +163,6 @@
                 ],
                 "order": [[2, "desc"]]
             });
-
             $('#abgdatumzeitRange').daterangepicker({
                 
                 autoUpdateInput: false,
@@ -181,7 +183,9 @@
                 table.draw();
             });
             $('#dateColumnFilter').on('change', function () {
-                table.draw();
+                if ($("#abgdatumzeitRange").val()) {
+                    table.draw();
+                }
             });
 
             $("#minRGLNR, #maxRGLNR").keyup(function() {
