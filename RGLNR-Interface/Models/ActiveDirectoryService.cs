@@ -17,6 +17,7 @@ namespace RGLNR_Interface.Services
                     var directoryEntry = userPrincipal.GetUnderlyingObject() as DirectoryEntry;
                     if (directoryEntry != null && directoryEntry.Properties.Contains("DisplayName"))
                     {
+                        
                         return directoryEntry.Properties["DisplayName"].Value.ToString();
                     }
                 }

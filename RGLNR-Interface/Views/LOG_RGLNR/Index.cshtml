@@ -1,64 +1,108 @@
-﻿<link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+﻿<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wünsche Services GmbH &#128309; Monitoring Tool</title>
+    <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+</head>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">End-to-End Monitoring</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-nav" id="companyFilter">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Mandant
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#" data-value="">Alle Mandanten</a></li>
+                            <div class="dropdown-divider"></div>
+                            <li><a class="dropdown-item" href="#" data-value="100">Wünsche Handelsgesellschaft mbH und Co. KG [100]</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="200">Dario GmbH & Co. KG [200]</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="400">Wünsche Fashion GmbH & Co. KG [400]</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="420">Duo Fashion GmbH [420]</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="510">Globaltronics GmbH & Co. KG [510]</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="575">Müller-Licht International GmbH [575]</a></li>
+                        </ul>
+                    </div>
+                    <select id="companyFilter" class="visually-hidden">
+                        <option value=""></option>
+                        <option value="100"></option>
+                        <option value="200"></option>
+                        <option value="400"></option>
+                        <option value="420"></option>
+                        <option value="510"></option>
+                        <option value="575"></option>
+                    </select>
 
-
-<h1>Hallo, @ViewBag.Department :)</h1>
-
-
-<div class="row mb-3">
-    <div class="col">
-        <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
-    </div>
-    <div class="col">
-        <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
-    </div>
-</div>
-<div class="row mb-3">
-    <div class="col-md">
-        <div class="input-group">
-            <input type="text" name="dates" id="abgdatumzeitRange" class="form-select" placeholder="&#128197; Zeitraum auswählen für" />
-            <select id="dateColumnFilter" class="form-select">
-                <option value="datum">Datum</option>
-                <option value="fällig">Fälligkeit</option>
-            </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<h>@ViewBag.Department</h>
+<body>
+    <div class="row mb-3">
+        <div class="col">
+            <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
+        </div>
+        <div class="col">
+            <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
         </div>
     </div>
-    <div class="col-sm">
-        <select id="companyFilter" class="form-select">
-            <option value="">&#9776; Alle Mandanten</option>
-            <option value="100">Wünsche Handelsgesellschaft International mbH und Co. KG [100]</option>
-            <option value="200">Dario GmbH & Co. KG [200]</option>
-            <option value="400">Wünsche Fashion GmbH & Co. KG [400]</option>
-            <option value="420">Duo Fashion GmbH [420]</option>
-            <option value="510">Globaltronics GmbH & Co. KG [510]</option>
-            <option value="575">Müller-Licht International GmbH [575]</option>
-        </select>
+    <div class="row mb-3">
+        <div class="col-md">
+            <div class="input-group">
+                <input type="text" name="dates" id="abgdatumzeitRange" class="form-select" placeholder="&#128197; Zeitraum auswählen für" />
+                <select id="dateColumnFilter" class="form-select">
+                    <option value="datum">Datum</option>
+                    <option value="fällig">Fälligkeit</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm">
+            <input type="text" id="pasteInvoices" class="form-control" placeholder="&#129534; Rechnungsnummern einfügen" aria-label="Max RGLNR">
+        </div>
     </div>
-</div>
-<table id="logRGLNRTable" class="display" style="width:100%" float="left">
-    <thead>
-        <tr>
-            <th>Rechnungslistennummer</th>
-            <th>Rechnungsnummer</th>
-            <th>Datum</th>
-            <th>Fällig</th>
-            <th>Rechnungsbetrag</th>
-            <th>EDI-Rechnung</th>
-            <th>Lobster Profil</th>
-        </tr>
-    </thead>
-</table>
+    <table id="logRGLNRTable" class="display" style="width:100%" float="left">
+        <thead>
+            <tr>
+                <th>Rechnungslistennummer</th>
+                <th>Rechnungsnummer</th>
+                <th>Datum</th>
+                <th>Fällig</th>
+                <th>Rechnungsbetrag</th>
+                <th>EDI-Rechnung</th>
+                <th>Lobster Profil</th>
+            </tr>
+        </thead>
+    </table>
+</body>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function () {
+                var value = this.getAttribute('data-value'); 
+                document.getElementById('companyFilter').value = value; 
+
+                var event = new Event('change');
+                document.getElementById('companyFilter').dispatchEvent(event);
+
+                document.getElementById('navbarDropdown').textContent = this.textContent;
+            });
+        });
+
         moment.locale('de');
         $(document).ready(function () {
             var table = $('#logRGLNRTable').DataTable({
@@ -118,6 +162,7 @@
                     "data": function (d) {
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
+                        d.pasteInvoices = $("#pasteInvoices").val();
                         var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
                         if ($("#abgdatumzeitRange").val()) {
                             var selectedColumn = $('#dateColumnFilter').val();
@@ -150,7 +195,7 @@
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
                         "render": function (data, type, row) {
-                            if (data === 'Überrtagen') {
+                            if (data === 'Überrtagen' || 'Übertagen') {
                                 return 'Ja';
                             } else if (data === 'Bereit') {
                                 return 'Nein';
@@ -189,6 +234,9 @@
             });
 
             $("#minRGLNR, #maxRGLNR").keyup(function() {
+                table.draw();
+            });
+            $("#pasteInvoices").keyup(function () {
                 table.draw();
             });
             $('#companyFilter').on('change', function() {

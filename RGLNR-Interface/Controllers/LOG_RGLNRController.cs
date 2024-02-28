@@ -37,12 +37,15 @@ namespace RGLNR_Interface.Controllers
 
                 bool minRGLNRParsed = int.TryParse(HttpContext.Request.Form["minRGLNR"].FirstOrDefault(), out int minRGLNR);
                 bool maxRGLNRParsed = int.TryParse(HttpContext.Request.Form["maxRGLNR"].FirstOrDefault(), out int maxRGLNR);
+                var pasteInvoices = HttpContext.Request.Form["pasteInvoices"].FirstOrDefault();
                 var startDateStr = HttpContext.Request.Form["startDate"].FirstOrDefault();
                 var endDateStr = HttpContext.Request.Form["endDate"].FirstOrDefault();
                 var companyPrefix = HttpContext.Request.Form["companyPrefix"].FirstOrDefault();
                 var startDateFälligStr = HttpContext.Request.Form["faelligStart"].FirstOrDefault();
                 var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
-
+                var invoiceList = !string.IsNullOrEmpty(pasteInvoices)
+                    ? pasteInvoices.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(invoice => invoice.Trim()).ToArray()
+                    : null;
 
                 DateTime? parsedStartDate = null, parsedEndDate = null;
 
@@ -82,6 +85,10 @@ namespace RGLNR_Interface.Controllers
                 {
                     baseQuery += " AND RGLNR <= @maxRGLNR";
                 }
+                if (invoiceList != null && invoiceList.Length > 0)
+                {
+                    baseQuery += " AND Rechnung IN @invoiceList"; 
+                }
                 if (parsedStartDateFällig.HasValue && parsedEndDateFällig.HasValue)
                 {
                     baseQuery += " AND Fällig BETWEEN @faelligStart AND @faelligEnd";
@@ -114,6 +121,7 @@ namespace RGLNR_Interface.Controllers
                     faelligStart = parsedStartDateFällig,
                     faelligEnd = parsedEndDateFällig,
                     companyPrefix,
+                    invoiceList,
                     start,
                     length
                 };

@@ -13,8 +13,7 @@ builder.WebHost.UseHttpSys(options =>
 {
     options.Authentication.Schemes = AuthenticationSchemes.Negotiate | AuthenticationSchemes.NTLM;
     options.Authentication.AllowAnonymous = false;
-    // options.UrlPrefixes.Add("http://localhost:5358");
-    options.UrlPrefixes.Add("http://*:5357/");
+    options.UrlPrefixes.Add("http://+:80/Temporary_Listen_Addresses");
 
 });
 
