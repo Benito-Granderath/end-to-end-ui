@@ -33,13 +33,12 @@
                     <select id="companyFilter" class="visually-hidden">
                         <option value=""></option>
                         <option value="100"></option>
-                        <option value="200"></option>
+                        <option value="200" selected></option>
                         <option value="400"></option>
                         <option value="420"></option>
                         <option value="510"></option>
                         <option value="575"></option>
                     </select>
-
                 </div>
             </div>
         </div>
@@ -62,6 +61,7 @@
                 <select id="dateColumnFilter" class="form-select">
                     <option value="datum">Datum</option>
                     <option value="fällig">Fälligkeit</option>
+                    <option value="log_date">Bestätigung</option>
                 </select>
             </div>
         </div>
@@ -76,6 +76,7 @@
                 <th>Rechnungsnummer</th>
                 <th>Datum</th>
                 <th>Fällig</th>
+                <th>Bestätigungsdatum</th>
                 <th>Rechnungsbetrag</th>
                 <th>EDI-Rechnung</th>
                 <th>Lobster Profil</th>
@@ -171,19 +172,32 @@
                                 d.endDate = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
                                 d.faelligStart = null;
                                 d.faelligEnd = null;
-                            } else {
+                                d.bestaetigungStart = null;
+                                d.bestaetigungEnd = null;
+                            } else if (selectedColumn == 'fällig') {
                                 d.faelligStart = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
                                 d.faelligEnd = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
                                 d.startDate = null;
                                 d.endDate = null;
-                                }
+                                d.bestaetigungStart = null;
+                                d.bestaetigungEnd = null;
+                            } else if (selectedColumn == 'log_date') {
+                                d.startDate = null;
+                                d.endDate = null;
+                                d.faelligStart = null;
+                                d.faelligEnd = null;
+                                d.bestaetigungStart = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
+                                d.bestaetigungEnd = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
                             } else {
                                 d.startDate = null;
                                 d.endDate = null;
                                 d.faelligStart = null;
                                 d.faelligEnd = null;
+                                d.bestaetigungStart = null;
+                                d.bestaetigungEnd = null;
                             }
-                        d.companyPrefix = $('#companyFilter').val();
+                            d.companyPrefix = $('#companyFilter').val();
+                        }
                     }
                 },
                 "columns": [
@@ -191,6 +205,7 @@
                     { "data": "rechnung" },
                     { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
+                    { "data": "log_date", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "rechnungsbetrag" },
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,

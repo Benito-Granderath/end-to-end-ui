@@ -15,10 +15,10 @@ namespace RGLNR_Interface.Services
                 if (userPrincipal != null)
                 {
                     var directoryEntry = userPrincipal.GetUnderlyingObject() as DirectoryEntry;
-                    if (directoryEntry != null && directoryEntry.Properties.Contains("Department"))
+                    if (directoryEntry != null && directoryEntry.Properties.Contains("department"))
                     {
                         
-                        return directoryEntry.Properties["Department"].Value.ToString();
+                        return directoryEntry.Properties["saMAccountName"].Value.ToString();
                     }
                 }
             }

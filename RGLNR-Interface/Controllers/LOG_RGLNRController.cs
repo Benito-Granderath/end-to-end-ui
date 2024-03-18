@@ -43,6 +43,8 @@ namespace RGLNR_Interface.Controllers
                 var companyPrefix = HttpContext.Request.Form["companyPrefix"].FirstOrDefault();
                 var startDateFälligStr = HttpContext.Request.Form["faelligStart"].FirstOrDefault();
                 var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
+                var startDateBestätigungStr = HttpContext.Request.Form["bestaetigungStart"].FirstOrDefault();
+                var endDateBestätigungStr = HttpContext.Request.Form["bestaetigungEnd"].FirstOrDefault();
                 var invoiceList = !string.IsNullOrEmpty(pasteInvoices)
                     ? pasteInvoices.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(invoice => invoice.Trim()).ToArray()
                     : null;
@@ -69,6 +71,17 @@ namespace RGLNR_Interface.Controllers
                 {
                     parsedEndDateFällig = faelligEnd;
                 }
+                DateTime? parsedStartDateBestätigung = null, parsedEndDateBestätigung = null;
+
+                if (DateTime.TryParseExact(startDateBestätigungStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungStart))
+                {
+                    parsedStartDateBestätigung = bestaetigungStart;
+                }
+
+                if (DateTime.TryParseExact(endDateBestätigungStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungEnd))
+                {
+                    parsedEndDateBestätigung = bestaetigungEnd;
+                }
 
 
                 string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BEN] WHERE 1=1";
@@ -93,6 +106,10 @@ namespace RGLNR_Interface.Controllers
                 {
                     baseQuery += " AND Fällig BETWEEN @faelligStart AND @faelligEnd";
                 }
+                if (parsedStartDateBestätigung.HasValue && parsedEndDateBestätigung.HasValue)
+                {
+                    baseQuery += " AND log_date BETWEEN @bestaetigungStart AND @bestaetigungEnd";
+                }
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue)";
@@ -103,7 +120,7 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += " AND DataAreaId = @companyPrefix";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
+                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [log_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
                                    baseQuery +
                                    " ORDER BY Datum DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
 
@@ -120,6 +137,8 @@ namespace RGLNR_Interface.Controllers
                     endDate = parsedEndDate,
                     faelligStart = parsedStartDateFällig,
                     faelligEnd = parsedEndDateFällig,
+                    bestaetigungStart = parsedStartDateBestätigung,
+                    bestaetigungEnd = parsedEndDateBestätigung,
                     companyPrefix,
                     invoiceList,
                     start,
