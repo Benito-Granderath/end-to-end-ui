@@ -205,7 +205,15 @@
                     { "data": "rechnung" },
                     { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
-                    { "data": "log_date", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
+                    {
+                        "data": "log_date", "render": function (data) {
+                            if (data === "0001-01-01T00:00:00") {
+                                return ''
+                            } else {
+                                return moment(data).format("DD.MM.YYYY");
+                            }
+                        }
+                    },
                     { "data": "rechnungsbetrag" },
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,

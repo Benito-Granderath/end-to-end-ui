@@ -20,8 +20,9 @@ namespace RGLNR_Interface.Controllers
 
         public IActionResult Index()
         {
+            var username = User.Identity.Name; 
             var adService = new ActiveDirectoryService();
-            var department = adService.GetUserDepartment();
+            var department = adService.GetUserDepartment(username);
             ViewBag.Department = department;
             return View();
         }
