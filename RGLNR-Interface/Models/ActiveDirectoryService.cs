@@ -2,27 +2,26 @@
 using System.DirectoryServices.AccountManagement;
 using System.Security.Principal;
 
-namespace RGLNR_Interface.Services 
+namespace RGLNR_Interface.Services
 {
     public class ActiveDirectoryService
     {
-        public string GetUserDepartment(string username)
+        public string GetUserSID(string username)
         {
-            var userPrincipalName = WindowsIdentity.GetCurrent().Name;
             using (var context = new PrincipalContext(ContextType.Domain))
             {
-                var userPrincipal = UserPrincipal.FindByIdentity(context, userPrincipalName);
+                var userPrincipal = UserPrincipal.FindByIdentity(context, username);
                 if (userPrincipal != null)
                 {
                     var directoryEntry = userPrincipal.GetUnderlyingObject() as DirectoryEntry;
-                    if (directoryEntry != null && directoryEntry.Properties.Contains("sAMAccountName"))
+                    if (directoryEntry != null && directoryEntry.Properties.Contains("objectSid"))
                     {
-                        
-                        return directoryEntry.Properties["sAMAccountName"].Value.ToString();
+                        var sid = new SecurityIdentifier((byte[])directoryEntry.Properties["objectSid"].Value, 0);
+                        return sid.ToString();
                     }
                 }
             }
-            return "Fehler: Attribut nicht gefunden";
+            return "SID not found";
         }
     }
 }

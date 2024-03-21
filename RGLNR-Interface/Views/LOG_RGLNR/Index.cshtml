@@ -16,7 +16,7 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <div class="navbar-nav" id="companyFilter">
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:black; font-weight: bold;">
                             Mandant
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -44,7 +44,7 @@
         </div>
     </nav>
 </header>
-<h>@ViewBag.Department</h>
+<h>@ViewBag.UserSID</h>
 <body>
     <div class="row mb-3">
         <div class="col">
@@ -218,10 +218,10 @@
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
                         "render": function (data, type, row) {
-                            if (data === 'Überrtagen' || 'Übertagen') {
-                                return 'Ja';
-                            } else if (data === 'Bereit') {
-                                return 'Nein';
+                            if (data === "Übertagen") {
+                                return "Ja"
+                            } else if (data === "Bereit") {
+                                return "Nein"
                             } else {
                                 return data; 
                             }

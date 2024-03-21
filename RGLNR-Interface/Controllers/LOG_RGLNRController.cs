@@ -13,17 +13,25 @@ namespace RGLNR_Interface.Controllers
     public class LOG_RGLNRController : Controller
     {
         private readonly IConfiguration _configuration;
-        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger)
+        private readonly ActiveDirectoryService _adService;
+        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ActiveDirectoryService adService)
         {
             _configuration = configuration;
+            _adService = adService;
         }
 
         public IActionResult Index()
         {
-            var username = User.Identity.Name; 
-            var adService = new ActiveDirectoryService();
-            var department = adService.GetUserDepartment(username);
-            ViewBag.Department = department;
+            if (User.Identity.IsAuthenticated)
+            {
+                var adService = new ActiveDirectoryService();
+                var userSID = adService.GetUserSID(User.Identity.Name);
+                ViewBag.UserSID = $"Nutzer authentifiziert mit sID {userSID}";
+            }
+            else
+            {
+                ViewBag.UserSID = "Nutzer ist nicht authentifiziert.";
+            }
             return View();
         }
         [HttpPost]
@@ -123,7 +131,7 @@ namespace RGLNR_Interface.Controllers
 
                 string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [log_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
                                    baseQuery +
-                                   " ORDER BY Datum DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                                   " ORDER BY log_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
 
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;
 

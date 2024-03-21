@@ -3,7 +3,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.Server.HttpSys; 
+using RGLNR_Interface.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<ActiveDirectoryService>();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
