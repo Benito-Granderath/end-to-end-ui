@@ -19,14 +19,13 @@ namespace RGLNR_Interface.Controllers
             _configuration = configuration;
             _adService = adService;
         }
-
         public IActionResult Index()
         {
             if (User.Identity.IsAuthenticated)
             {
                 var adService = new ActiveDirectoryService();
                 var userSID = adService.GetUserSID(User.Identity.Name);
-                ViewBag.UserSID = $"Nutzer authentifiziert mit sID {userSID}";
+                ViewBag.UserSID = $"Nutzer authentifiziert mit sID: {userSID}";
             }
             else
             {
@@ -43,7 +42,6 @@ namespace RGLNR_Interface.Controllers
                 var start = int.Parse(HttpContext.Request.Form["start"].FirstOrDefault() ?? "0");
                 var length = int.Parse(HttpContext.Request.Form["length"].FirstOrDefault() ?? "0");
                 var searchValue = HttpContext.Request.Form["search[value]"].FirstOrDefault();
-
                 bool minRGLNRParsed = int.TryParse(HttpContext.Request.Form["minRGLNR"].FirstOrDefault(), out int minRGLNR);
                 bool maxRGLNRParsed = int.TryParse(HttpContext.Request.Form["maxRGLNR"].FirstOrDefault(), out int maxRGLNR);
                 var pasteInvoices = HttpContext.Request.Form["pasteInvoices"].FirstOrDefault();
@@ -162,7 +160,7 @@ namespace RGLNR_Interface.Controllers
 
                 db.Close();
 
-                return Json(new { draw = draw, recordsFiltered = recordsFiltered, recordsTotal = recordsTotal, data = data });
+                return Json(new { draw, recordsFiltered, recordsTotal, data });
             }
         }
 

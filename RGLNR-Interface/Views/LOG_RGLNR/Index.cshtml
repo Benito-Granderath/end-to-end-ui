@@ -8,7 +8,7 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">End-to-End Monitoring</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="text-shadow: 0.1px 0px 0.5px;">End-to-End Monitoring</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -16,7 +16,7 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <div class="navbar-nav" id="companyFilter">
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:black; font-weight: bold;">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-shadow: 0.1px 0px 0.1px;font-weight:bold;">
                             Mandant
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -44,7 +44,7 @@
         </div>
     </nav>
 </header>
-<h>@ViewBag.UserSID</h>
+<span style="color: grey;">@ViewBag.UserSID</span>
 <body>
     <div class="row mb-3">
         <div class="col">

@@ -6,7 +6,7 @@ namespace RGLNR_Interface.Services
 {
     public class ActiveDirectoryService
     {
-        public string GetUserSID(string username)
+        public string? GetUserSID(string username)
         {
             using (var context = new PrincipalContext(ContextType.Domain))
             {
@@ -21,7 +21,7 @@ namespace RGLNR_Interface.Services
                     }
                 }
             }
-            return "SID not found";
+            return null;
         }
     }
 }
