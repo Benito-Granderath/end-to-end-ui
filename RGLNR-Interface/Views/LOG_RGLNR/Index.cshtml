@@ -1,4 +1,5 @@
-﻿<head>
+﻿@model IEnumerable<RGLNR_Interface.Models.UserPermission>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wünsche Services GmbH &#128309; Monitoring Tool</title>
@@ -8,7 +9,7 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="text-shadow: 0.1px 0px 0.5px;">End-to-End Monitoring</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">End-to-End Monitoring</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -16,7 +17,7 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <div class="navbar-nav" id="companyFilter">
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-shadow: 0.1px 0px 0.1px;font-weight:bold;">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Mandant
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -31,19 +32,43 @@
                         </ul>
                     </div>
                     <select id="companyFilter" class="visually-hidden">
-                        <option value=""></option>
+                        <option value="" selected></option>
                         <option value="100"></option>
-                        <option value="200" selected></option>
+                        <option value="200"></option>
                         <option value="400"></option>
                         <option value="420"></option>
                         <option value="510"></option>
                         <option value="575"></option>
                     </select>
                 </div>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#userPermissionsModal">Berechtigungen anzeigen</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 </header>
+<div class="modal fade" id="userPermissionsModal" tabindex="-1" aria-labelledby="userPermissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userPermissionsModalLabel">Berechtigungen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @foreach (var permission in Model)
+                {
+                    <p>@permission.permissionID - @permission.description</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
 <span style="color: grey;">@ViewBag.UserSID</span>
 <body>
     <div class="row mb-3">
@@ -164,6 +189,7 @@
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
                         d.pasteInvoices = $("#pasteInvoices").val();
+                        d.companyPrefix = $('#companyFilter').val();
                         var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
                         if ($("#abgdatumzeitRange").val()) {
                             var selectedColumn = $('#dateColumnFilter').val();
@@ -196,7 +222,6 @@
                                 d.bestaetigungStart = null;
                                 d.bestaetigungEnd = null;
                             }
-                            d.companyPrefix = $('#companyFilter').val();
                         }
                     }
                 },

@@ -11,9 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 #pragma warning disable CA1416 // Plattformkompatibilität überprüfen
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new ValidateSidAttribute());
+});
 builder.Services.AddScoped<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ActiveDirectoryService>();
+builder.Services.AddAuthentication(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme);
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

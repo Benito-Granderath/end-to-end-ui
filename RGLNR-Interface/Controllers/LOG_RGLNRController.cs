@@ -6,32 +6,40 @@ using System.Data;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using RGLNR_Interface.Services;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace RGLNR_Interface.Controllers
 {
     public class LOG_RGLNRController : Controller
     {
+        private readonly PermissionService _permissionService;
         private readonly IConfiguration _configuration;
         private readonly ActiveDirectoryService _adService;
         public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ActiveDirectoryService adService)
         {
+            _permissionService = new PermissionService(configuration.GetConnectionString("DefaultConnection"));
             _configuration = configuration;
             _adService = adService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+
             if (User.Identity.IsAuthenticated)
             {
-                var adService = new ActiveDirectoryService();
-                var userSID = adService.GetUserSID(User.Identity.Name);
+                string username = User.Identity.Name;
+                string userSID = _adService.GetUserSID(username);
+                Debug.WriteLine($"Authentifiziert mit {userSID}");
                 ViewBag.UserSID = $"Nutzer authentifiziert mit sID: {userSID}";
+
+                var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
+                return View(permissions);
             }
             else
             {
-                ViewBag.UserSID = "Nutzer ist nicht authentifiziert.";
+                return RedirectToAction("AccessDenied", "Home");
             }
-            return View();
         }
         [HttpPost]
         public async Task<IActionResult> LoadData()
