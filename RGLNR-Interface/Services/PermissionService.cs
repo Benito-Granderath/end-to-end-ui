@@ -26,8 +26,10 @@ namespace RGLNR_Interface.Services
                     "GetUserPermissions",
                     param: parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
+
                 return userPermissions;
             }
+
         }
     }
 

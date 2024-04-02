@@ -30,11 +30,23 @@ namespace RGLNR_Interface.Controllers
             {
                 string username = User.Identity.Name;
                 string userSID = _adService.GetUserSID(username);
-                Debug.WriteLine($"Authentifiziert mit {userSID}");
                 ViewBag.UserSID = $"Nutzer authentifiziert mit sID: {userSID}";
 
-                var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
-                return View(permissions);
+                if (!string.IsNullOrEmpty(userSID))
+                {
+                    var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
+
+                    if (permissions == null || !permissions.Any())
+                    {
+                        return RedirectToAction("AccessDenied", "Home");
+                    }
+
+                    return View(permissions);
+                }
+                else
+                {
+                    return RedirectToAction("AccessDenied", "Home");
+                }
             }
             else
             {
@@ -55,7 +67,7 @@ namespace RGLNR_Interface.Controllers
                 var pasteInvoices = HttpContext.Request.Form["pasteInvoices"].FirstOrDefault();
                 var startDateStr = HttpContext.Request.Form["startDate"].FirstOrDefault();
                 var endDateStr = HttpContext.Request.Form["endDate"].FirstOrDefault();
-                var companyPrefix = HttpContext.Request.Form["companyPrefix"].FirstOrDefault();
+                var companyPrefixParsed = int.TryParse(HttpContext.Request.Form["companyPrefix"].FirstOrDefault(), out int companyPrefix);
                 var startDateFälligStr = HttpContext.Request.Form["faelligStart"].FirstOrDefault();
                 var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
                 var startDateBestätigungStr = HttpContext.Request.Form["bestaetigungStart"].FirstOrDefault();
@@ -63,8 +75,22 @@ namespace RGLNR_Interface.Controllers
                 var invoiceList = !string.IsNullOrEmpty(pasteInvoices)
                     ? pasteInvoices.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(invoice => invoice.Trim()).ToArray()
                     : null;
-
                 DateTime? parsedStartDate = null, parsedEndDate = null;
+                List<int> userPermissionsDataAreaIds = new List<int>();
+
+                if (companyPrefixParsed && companyPrefix == -1)
+                {
+                    string username = User.Identity.Name;
+                    string userSID = _adService.GetUserSID(username);
+                    var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
+
+                    userPermissionsDataAreaIds = permissions.Select(p => p.description).ToList();
+
+                }
+                else if (companyPrefix > 0)
+                {
+                    userPermissionsDataAreaIds.Add(companyPrefix);
+                }
 
                 if (DateTime.TryParseExact(startDateStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startDate))
                 {
@@ -97,7 +123,7 @@ namespace RGLNR_Interface.Controllers
                 {
                     parsedEndDateBestätigung = bestaetigungEnd;
                 }
-
+                Debug.WriteLine(companyPrefix);
 
                 string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BEN] WHERE 1=1";
 
@@ -130,19 +156,18 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue)";
                 }
 
-                if (!string.IsNullOrEmpty(companyPrefix))
+                if (userPermissionsDataAreaIds.Any())
                 {
-                    baseQuery += " AND DataAreaId = @companyPrefix";
+                    var dataAreaIds = string.Join(", ", userPermissionsDataAreaIds);
+                    baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
                 }
 
                 string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [log_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
                                    baseQuery +
                                    " ORDER BY log_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
-
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;
 
                 db.Open();
-
                 var parameters = new
                 {
                     searchValue = $"%{searchValue}%",
@@ -165,7 +190,7 @@ namespace RGLNR_Interface.Controllers
                 var recordsFiltered = await db.ExecuteScalarAsync<int>(filteredCountQuery, parameters);
 
                 var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BEN]");
-
+                Debug.WriteLine(companyPrefix);
                 db.Close();
 
                 return Json(new { draw, recordsFiltered, recordsTotal, data });

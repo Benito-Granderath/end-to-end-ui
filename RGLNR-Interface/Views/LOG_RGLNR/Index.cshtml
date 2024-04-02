@@ -21,25 +21,23 @@
                             Mandant
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#" data-value="">Alle Mandanten</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="-1">Alle Mandanten</a></li>
                             <div class="dropdown-divider"></div>
-                            <li><a class="dropdown-item" href="#" data-value="100">Wünsche Handelsgesellschaft mbH und Co. KG [100]</a></li>
-                            <li><a class="dropdown-item" href="#" data-value="200">Dario GmbH & Co. KG [200]</a></li>
-                            <li><a class="dropdown-item" href="#" data-value="400">Wünsche Fashion GmbH & Co. KG [400]</a></li>
-                            <li><a class="dropdown-item" href="#" data-value="420">Duo Fashion GmbH [420]</a></li>
-                            <li><a class="dropdown-item" href="#" data-value="510">Globaltronics GmbH & Co. KG [510]</a></li>
-                            <li><a class="dropdown-item" href="#" data-value="575">Müller-Licht International GmbH [575]</a></li>
+                            @foreach (var option in new[] {
+                            new { Value = 100, Text = "Wünsche Handelsgesellschaft mbH und Co. KG [100]" },
+                            new { Value = 200, Text = "Dario GmbH & Co. KG [200]" },
+                            new { Value = 400, Text = "Wünsche Fashion GmbH & Co. KG [400]" },
+                            new { Value = 420, Text = "Duo Fashion GmbH [420]" },
+                            new { Value = 510, Text = "Globaltronics GmbH & Co. KG [510]" },
+                            new { Value = 575, Text = "Müller-Licht International GmbH [575]" } })
+                            {
+                                <li>
+                                    <a class="dropdown-item @(!Model.Any(p => p.description == option.Value) ? "disabled" : "")"
+                                       href="#" data-value="@option.Value">@option.Text</a>
+                                </li>
+                            }
                         </ul>
                     </div>
-                    <select id="companyFilter" class="visually-hidden">
-                        <option value="" selected></option>
-                        <option value="100"></option>
-                        <option value="200"></option>
-                        <option value="400"></option>
-                        <option value="420"></option>
-                        <option value="510"></option>
-                        <option value="575"></option>
-                    </select>
                 </div>
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -60,7 +58,7 @@
             <div class="modal-body">
                 @foreach (var permission in Model)
                 {
-                    <p>@permission.permissionID - @permission.description</p>
+                    <p><span style="color: grey; font-style: italic; font-family: 'Lucida Console', Monaco, monospace;">@permission.permissionID -</span> <span style="font-family: 'Lucida Console', Monaco, monospace; font-weight: 700;">Mandant @permission.description</span></p>
                 }
             </div>
             <div class="modal-footer">
@@ -117,15 +115,16 @@
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
+        var currentCompanyFilter = '-1';
+
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', function () {
-                var value = this.getAttribute('data-value'); 
-                document.getElementById('companyFilter').value = value; 
-
-                var event = new Event('change');
-                document.getElementById('companyFilter').dispatchEvent(event);
+                var value = this.getAttribute('data-value');
+                currentCompanyFilter = value; 
 
                 document.getElementById('navbarDropdown').textContent = this.textContent;
+
+                $('#logRGLNRTable').DataTable().ajax.reload(); 
             });
         });
 
@@ -189,7 +188,7 @@
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
                         d.pasteInvoices = $("#pasteInvoices").val();
-                        d.companyPrefix = $('#companyFilter').val();
+                        d.companyPrefix = currentCompanyFilter;
                         var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
                         if ($("#abgdatumzeitRange").val()) {
                             var selectedColumn = $('#dateColumnFilter').val();
