@@ -30,7 +30,8 @@ namespace RGLNR_Interface.Controllers
             {
                 string username = User.Identity.Name;
                 string userSID = _adService.GetUserSID(username);
-                ViewBag.UserSID = $"Nutzer authentifiziert mit sID: {userSID}";
+                ViewBag.UserSID = userSID;
+                ViewBag.UserName = username;
 
                 if (!string.IsNullOrEmpty(userSID))
                 {

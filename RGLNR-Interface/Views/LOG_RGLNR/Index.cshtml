@@ -56,18 +56,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <p style="font-family: 'Tahoma, sans-serif' color: #444; font-size: 16px;">
+                    Nutzer
+                    <span style="font-weight: 600; color: #40303f; font-size: 18px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">
+                        @ViewBag.UserName
+                    </span>
+                </p>
+
                 @foreach (var permission in Model)
                 {
                     <p><span style="color: grey; font-style: italic; font-family: 'Lucida Console', Monaco, monospace;">@permission.permissionID -</span> <span style="font-family: 'Lucida Console', Monaco, monospace; font-weight: 700;">Mandant @permission.description</span></p>
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=@Uri.EscapeDataString(ViewBag.UserSID) Endtoend Berechtigungsanfrage">Berechtigungen anfragen</a>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
             </div>
         </div>
     </div>
 </div>
-<span style="color: grey;">@ViewBag.UserSID</span>
+<span style="color: grey;">Nutzer authentifiziert mit sID: @ViewBag.UserSID</span>
 <body>
     <div class="row mb-3">
         <div class="col">
@@ -134,6 +142,7 @@
                 "processing": true,
                 "serverSide": true,
                 "colReorder": true,
+                "ordering": false,
                 "dom": "lfrBtip",
                 "iDisplayLength": 10,
                 "oLanguage": {
@@ -253,7 +262,8 @@
                     },
                     { "data": "profile_name" }
                 ],
-                "order": [[2, "desc"]]
+                "order": [[2, "desc"]],
+                "deferRender": true
             });
             $('#abgdatumzeitRange').daterangepicker({
                 
