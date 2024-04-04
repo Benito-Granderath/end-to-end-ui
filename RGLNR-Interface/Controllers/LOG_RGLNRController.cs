@@ -150,7 +150,7 @@ namespace RGLNR_Interface.Controllers
                 }
                 if (parsedStartDateBestätigung.HasValue && parsedEndDateBestätigung.HasValue)
                 {
-                    baseQuery += " AND log_date BETWEEN @bestaetigungStart AND @bestaetigungEnd";
+                    baseQuery += " AND entry_date BETWEEN @bestaetigungStart AND @bestaetigungEnd";
                 }
                 if (!string.IsNullOrEmpty(searchValue))
                 {
@@ -163,9 +163,9 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [log_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
+                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
                                    baseQuery +
-                                   " ORDER BY log_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                                   " ORDER BY entry_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;
 
                 db.Open();

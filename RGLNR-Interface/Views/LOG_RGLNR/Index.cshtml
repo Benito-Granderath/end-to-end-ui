@@ -62,14 +62,13 @@
                         @ViewBag.UserName
                     </span>
                 </p>
-
-                @foreach (var permission in Model)
+                @foreach (var permission in Model.Where(p => p.permissionID > 0))
                 {
                     <p><span style="color: grey; font-style: italic; font-family: 'Lucida Console', Monaco, monospace;">@permission.permissionID -</span> <span style="font-family: 'Lucida Console', Monaco, monospace; font-weight: 700;">Mandant @permission.description</span></p>
                 }
             </div>
             <div class="modal-footer">
-                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=@Uri.EscapeDataString(ViewBag.UserSID) Endtoend Berechtigungsanfrage">Berechtigungen anfragen</a>
+                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=EndToEnd Monitoring Berechtigungsanfrage?body=sID= @Uri.EscapeDataString(ViewBag.UserSID) \n UserName= @Uri.EscapeDataString(ViewBag.UserName) \n\n Ich benötige Zugriff auf Mandanten {hier Mandanten einfügen}">Berechtigungen anfragen</a>
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
             </div>
         </div>
@@ -92,7 +91,7 @@
                 <select id="dateColumnFilter" class="form-select">
                     <option value="datum">Datum</option>
                     <option value="fällig">Fälligkeit</option>
-                    <option value="log_date">Bestätigung</option>
+                    <option value="entry_date">Bestätigung</option>
                 </select>
             </div>
         </div>
@@ -173,7 +172,9 @@
                     extend: 'pdf',
                     exportOptions: {
                         columns: ':visible'
-                    }
+                    },
+                    orientation: 'landscape',
+                    pageSize: 'A3'
                 },
                 {
                     extend: 'print',
@@ -215,7 +216,7 @@
                                 d.endDate = null;
                                 d.bestaetigungStart = null;
                                 d.bestaetigungEnd = null;
-                            } else if (selectedColumn == 'log_date') {
+                            } else if (selectedColumn == 'entry_date') {
                                 d.startDate = null;
                                 d.endDate = null;
                                 d.faelligStart = null;
@@ -239,7 +240,7 @@
                     { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     {
-                        "data": "log_date", "render": function (data) {
+                        "data": "entry_date", "render": function (data) {
                             if (data === "0001-01-01T00:00:00") {
                                 return ''
                             } else {
