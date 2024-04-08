@@ -65,7 +65,8 @@
                     <span style="font-weight: 600; color: #40303f; font-size: 18px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">
                         @ViewBag.UserName
                     </span>
-                    authentifiziert via sID <br />@ViewBag.userSID
+                    authentifiziert via sID: <br/><br/>
+                    <span style="font-weight: 600; color: #40303f; font-size: 15px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">@ViewBag.userSID</span>
                 </p>
                 @foreach (var permission in Model.Where(p => p.permissionID > 0))
                 {
