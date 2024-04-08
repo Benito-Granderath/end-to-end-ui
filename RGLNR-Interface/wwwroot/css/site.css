@@ -1,6 +1,12 @@
 html {
   font-size: 14px;
 }
+:root {
+    --table: #005A8D;
+    --search: #7a9abb;
+    --buttons: #7a9abb;
+    --pagination: #586872;
+}
 
 @media (min-width: 768px) {
   html {
@@ -27,6 +33,13 @@ html {
 }
 
 body {
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #fff;
     margin-bottom: 60px;
 }
 
@@ -41,8 +54,8 @@ body {
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
 }
 .display thead tr {
-    background-color: #2651decf;
-    color: #ffffff;
+    background-color: var(--table);
+    color: white;
     text-align: left;
     font-weight: bold;
 }
@@ -50,7 +63,13 @@ body {
 .display th, .display td {
     padding: 12px 15px;
 
-} 
+}
+.display tbody {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 0.8em;
+}
 
 .display tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
@@ -62,3 +81,103 @@ body {
     margin-right: 0px; 
 }
 
+
+.button-18 {
+    align-items: center;
+    background-color: var(--buttons);
+    border: 0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 20px;
+    max-width: 480px;
+    min-height: 40px;
+    min-width: 0px;
+    overflow: hidden;
+    padding: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    text-align: center;
+    touch-action: manipulation;
+    transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+}
+.button-19 {
+    align-items: center;
+    background-color: var(--search);
+    border: 0;
+    border-radius: 100px;
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 20px;
+    max-width: 480px;
+    min-height: 40px;
+    min-width: 0px;
+    overflow: hidden;
+    padding: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    text-align: center;
+    touch-action: manipulation;
+    transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus {
+    background-color: #005A8D;
+    color: #ffffff;
+}
+
+.button-18:active {
+    background: #005A8D;
+    color: rgb(255, 255, 255, .7);
+}
+
+.button-19:hover,
+.button-19:focus {
+    background-color: #005A8D;
+    color: #ffffff;
+}
+
+.button-19:active {
+    background: #005A8D;
+    color: rgb(255, 255, 255, .7);
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--pagination);
+    border-color: var(--pagination);
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    color: var(--pagination);
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+a {
+    color: var(--pagination);
+    text-decoration: underline;
+}

@@ -5,6 +5,10 @@
     <title>Wünsche Services GmbH &#128309; Monitoring Tool</title>
     <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="~/lib/bootstrap/dist/css/" />
 </head>
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -61,6 +65,7 @@
                     <span style="font-weight: 600; color: #40303f; font-size: 18px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">
                         @ViewBag.UserName
                     </span>
+                    authentifiziert via sID <br />@ViewBag.userSID
                 </p>
                 @foreach (var permission in Model.Where(p => p.permissionID > 0))
                 {
@@ -68,20 +73,23 @@
                 }
             </div>
             <div class="modal-footer">
-                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=EndToEnd Monitoring Berechtigungsanfrage?body=sID= @Uri.EscapeDataString(ViewBag.UserSID) \n UserName= @Uri.EscapeDataString(ViewBag.UserName) \n\n Ich benötige Zugriff auf Mandanten {hier Mandanten einfügen}">Berechtigungen anfragen</a>
+                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=EndToEnd%20Monitoring%20Berechtigungsanfrage&body=sID:%20 @Uri.EscapeDataString(ViewBag.UserSID)%0D%0AUsername:%20 @Uri.EscapeDataString(ViewBag.UserName)%0D%0A%0D%0AIch%20benötige%20Zugriff%20auf%20Mandanten:%0D%0A%0D%0A%0D%0A{hier Mandanten einfügen}">Berechtigungen anfragen</a>
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
             </div>
         </div>
     </div>
 </div>
-<span style="color: grey;">Nutzer authentifiziert mit sID: @ViewBag.UserSID</span>
 <body>
     <div class="row mb-3">
-        <div class="col">
-            <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
+                <span class="input-group-text">-</span>
+                <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
+            </div>
         </div>
-        <div class="col">
-            <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
+        <div class="col-md-6">
+            <input type="text" id="pasteInvoices" class="form-control" placeholder="&#129534; Rechnungsnummern einfügen" aria-label="Rechnungsnummern separiert durch Komma oder Leerzeichen einfügen.">
         </div>
     </div>
     <div class="row mb-3">
@@ -96,20 +104,22 @@
             </div>
         </div>
         <div class="col-sm">
-            <input type="text" id="pasteInvoices" class="form-control" placeholder="&#129534; Rechnungsnummern einfügen" aria-label="Max RGLNR">
+            <button type="button" id="activateSearch" class="button-19" placeholder="Suchen" aria-label="Search">&#128269; Suchen</button>
         </div>
     </div>
     <table id="logRGLNRTable" class="display" style="width:100%" float="left">
         <thead>
             <tr>
-                <th>Rechnungslistennummer</th>
-                <th>Rechnungsnummer</th>
+                <th>Rechnungsliste</th>
+                <th>Rechnung</th>
                 <th>Datum</th>
                 <th>Fällig</th>
-                <th>Bestätigungsdatum</th>
-                <th>Rechnungsbetrag</th>
+                <th>Bestätigung</th>
+                <th>Betrag</th>
                 <th>EDI-Rechnung</th>
+                <th>Job Nummer</th>
                 <th>Lobster Profil</th>
+                <th>Lobster Status</th>
             </tr>
         </thead>
     </table>
@@ -121,6 +131,7 @@
     <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
     <script>
         var currentCompanyFilter = '-1';
 
@@ -146,7 +157,7 @@
                 "iDisplayLength": 10,
                 "oLanguage": {
                     "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
-                    "sSearch": "&#128269; Allgemeine Suche:"
+                    "sSearch": "Allgemeine Suche:"
                 },
                 buttons: [
                               {
@@ -154,19 +165,22 @@
                     exportOptions: {
                         columns: ':visible'
                     },
-                    text: 'Kopieren'
+                    text: 'Kopieren',
+                    className: 'button-18'
                 },
                 {
                     extend: 'csv',
                     exportOptions: {
                         columns: ':visible'
-                    }
+                    },
+                    className: 'button-18'
                 },
                 {
                     extend: 'excel',
                     exportOptions: {
                         columns: ':visible'
-                    }
+                    },
+                    className: 'button-18'
                 },
                 {
                     extend: 'pdf',
@@ -174,18 +188,21 @@
                         columns: ':visible'
                     },
                     orientation: 'landscape',
-                    pageSize: 'A3'
+                    pageSize: 'A3',
+                    className: 'button-18'
                 },
                 {
                     extend: 'print',
                     exportOptions: {
                         columns: ':visible'
                     },
-                    text: 'Drucken'
+                    text: 'Drucken',
+                    className: 'button-18'
                 }, 
                 { 
                     extend: 'colvis', 
-                    text: 'Spalten ein- und ausblenden' 
+                    text: 'Spalten ein- und ausblenden',
+                    className: 'button-18'
                 } 
                 ],
 
@@ -261,7 +278,9 @@
                             }
                         }
                     },
-                    { "data": "profile_name" }
+                    { "data": "job_nr" },
+                    { "data": "profile_name" },
+                    { "data": "status" }
                 ],
                 "order": [[2, "desc"]],
                 "deferRender": true
@@ -291,15 +310,16 @@
                 }
             });
 
-            $("#minRGLNR, #maxRGLNR").keyup(function() {
-                table.draw();
-            });
-            $("#pasteInvoices").keyup(function () {
-                table.draw();
-            });
             $('#companyFilter').on('change', function() {
                 table.draw();
             });
+            $('#activateSearch').on('click', function () {
+                var minRGLNR = $('#minRGLNR').val();
+                var maxRGLNR = $('#maxRGLNR').val();
+                var pasteInvoices = $('#pasteInvoices').val();
+                table.draw();
+            });
+
         });
     </script>
 }

@@ -124,7 +124,6 @@ namespace RGLNR_Interface.Controllers
                 {
                     parsedEndDateBestätigung = bestaetigungEnd;
                 }
-                Debug.WriteLine(companyPrefix);
 
                 string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BEN] WHERE 1=1";
 
@@ -163,7 +162,7 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name] " +
+                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] " +
                                    baseQuery +
                                    " ORDER BY entry_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;

@@ -10,5 +10,8 @@
         public decimal Rechnungsbetrag { get; set; }
         public string EDIStatus {get; set; }
         public string profile_name { get; set; }
+        public decimal job_nr { get; set; }
+        public string status {  get; set; }
+
     }
 }
