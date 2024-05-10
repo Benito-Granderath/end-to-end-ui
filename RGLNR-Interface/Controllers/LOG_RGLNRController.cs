@@ -153,7 +153,7 @@ namespace RGLNR_Interface.Controllers
                 }
                 if (!string.IsNullOrEmpty(searchValue))
                 {
-                    baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue)";
+                    baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue OR Materialanforderung LIKE @searchValue OR [Ihr Zeichen] LIKE @searchValue OR job_nr LIKE @searchValue)";
                 }
 
                 if (userPermissionsDataAreaIds.Any())
@@ -162,7 +162,7 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] " +
+                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] " +
                                    baseQuery +
                                    " ORDER BY entry_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;

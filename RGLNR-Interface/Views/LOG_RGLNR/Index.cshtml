@@ -28,10 +28,13 @@
                             <li><a class="dropdown-item" href="#" data-value="-1">Alle Mandanten</a></li>
                             <div class="dropdown-divider"></div>
                             @foreach (var option in new[] {
-                            new { Value = 100, Text = "Wünsche Handelsgesellschaft mbH und Co. KG [100]" },
+                            new { Value = 100, Text = "Wünsche Handelsgesellschaft mbH & Co. KG [100]" },
                             new { Value = 200, Text = "Dario GmbH & Co. KG [200]" },
+                            new { Value = 300, Text = "Monz Handelsgesellschaft International mbH [300]" },
+                            new { Value = 310, Text = "Monz International Verwaltungs GmbH [310]" },
                             new { Value = 400, Text = "Wünsche Fashion GmbH & Co. KG [400]" },
                             new { Value = 420, Text = "Duo Fashion GmbH [420]" },
+                            new { Value = 430, Text = "Flexxtrade GmbH & Co. KG [430]" },
                             new { Value = 510, Text = "Globaltronics GmbH & Co. KG [510]" },
                             new { Value = 575, Text = "Müller-Licht International GmbH [575]" } })
                             {
@@ -117,6 +120,8 @@
                 <th>Fällig</th>
                 <th>Bestätigung</th>
                 <th>Betrag</th>
+                <th>Anforderung Debitor</th>
+                <th>Debitorenreferenz</th>
                 <th>EDI-Rechnung</th>
                 <th>Job Nummer</th>
                 <th>Lobster Profil</th>
@@ -160,6 +165,12 @@
                     "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
                     "sSearch": "Allgemeine Suche:"
                 },
+                columnDefs: [
+                    {
+                        targets: [3, 8, 9, 10, 11],
+                        visible: false
+                    }
+                ], 
                 buttons: [
                               {
                 extend: 'copy',
@@ -267,6 +278,8 @@
                         }
                     },
                     { "data": "rechnungsbetrag" },
+                    { "data": "materialanforderung"},
+                    { "data": "ihrZeichen", "name": "IhrZeichen"},
                     { 
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
                         "render": function (data, type, row) {
