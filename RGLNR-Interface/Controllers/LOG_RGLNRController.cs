@@ -9,6 +9,7 @@ using RGLNR_Interface.Services;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace RGLNR_Interface.Controllers
@@ -65,6 +66,8 @@ namespace RGLNR_Interface.Controllers
                 var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
                 var start = int.Parse(HttpContext.Request.Form["start"].FirstOrDefault() ?? "0");
                 var length = int.Parse(HttpContext.Request.Form["length"].FirstOrDefault() ?? "0");
+                var orderColumnIndex = HttpContext.Request.Form["order[0][column]"].FirstOrDefault();
+                var orderDir = HttpContext.Request.Form["order[0][dir]"].FirstOrDefault();
                 bool minRGLNRParsed = int.TryParse(HttpContext.Request.Form["minRGLNR"].FirstOrDefault(), out int minRGLNR);
                 bool maxRGLNRParsed = int.TryParse(HttpContext.Request.Form["maxRGLNR"].FirstOrDefault(), out int maxRGLNR);
                 var pasteInvoices = HttpContext.Request.Form["pasteInvoices"].FirstOrDefault();
@@ -83,14 +86,27 @@ namespace RGLNR_Interface.Controllers
                     : null;
                 DateTime? parsedStartDate = null, parsedEndDate = null;
                 List<int> userPermissionsDataAreaIds = new List<int>();
-                
+                string[] columnMapping = new string[] {
+                    "RGLNR",
+                    "Rechnung",
+                    "Datum",
+                    "Fällig",
+                    "entry_date",
+                    "Rechnungsbetrag",
+                    "Materialanforderung",
+                    "IhrZeichen",
+                    "EDIStatus",
+                    "job_nr",
+                    "profile_name",
+                    "status"
+                };
+
                 if (companyPrefixParsed && companyPrefix == -1)
                 {
                     string username = User.Identity.Name;
                     var permissions = await _permissionService.GetUserPermissionsAsync(username);
 
                     userPermissionsDataAreaIds = permissions.Select(p => p.description).ToList();
-
                 }
                 else if (companyPrefix > 0)
                 {
@@ -189,13 +205,12 @@ namespace RGLNR_Interface.Controllers
                             break;
                         default:
                             break;
-
                     }
                 }
 
                 if (invoiceList != null && invoiceList.Length > 0)
                 {
-                    baseQuery += " AND Rechnung IN @invoiceList OR RGLNR IN @invoiceList"; 
+                    baseQuery += " AND Rechnung IN @invoiceList OR RGLNR IN @invoiceList";
                 }
                 if (parsedStartDateFällig.HasValue && parsedEndDateFällig.HasValue)
                 {
@@ -212,9 +227,32 @@ namespace RGLNR_Interface.Controllers
                     baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
                 }
 
-                string dataQuery = "SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] " +
-                                   baseQuery +
-                                   " ORDER BY entry_date DESC OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                string dataQuery;
+
+                if (int.TryParse(orderColumnIndex, out int columnIndex) && columnIndex >= 0 && columnIndex < columnMapping.Length)
+                {
+                    var orderColumn = columnMapping[columnIndex];
+                    var orderDirection = orderDir == "desc" ? "DESC" : "ASC";
+
+                    dataQuery = $@"
+                    SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                           [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, 
+                           [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] 
+                    {baseQuery}
+                    ORDER BY {orderColumn} {orderDirection} 
+                    OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                }
+                else
+                {
+                    dataQuery = $@"
+                    SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                           [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, 
+                           [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] 
+                    {baseQuery}
+                    ORDER BY RGLNR ASC  -- Default order by RGLNR ASC
+                    OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
+                }
+
                 string filteredCountQuery = "SELECT COUNT(*) " + baseQuery;
 
                 db.Open();
@@ -232,6 +270,8 @@ namespace RGLNR_Interface.Controllers
                     invoiceList,
                     start,
                     length,
+                    orderColumnIndex,
+                    orderDir,
                     searchValue = $"%{searchValue}%",
                     searchRGLNR = searchField == "searchrglnr" ? searchValue : (object)DBNull.Value,
                     Rechnung = searchField == "searchinvoice" ? searchValue : (object)DBNull.Value,
@@ -244,16 +284,16 @@ namespace RGLNR_Interface.Controllers
                     searchlobsterstatus = searchField == "searchlobsterstatus" ? searchValue : (object)DBNull.Value
                 };
 
-                var data = await db.QueryAsync<LOG_RGLNR_Model>(dataQuery, parameters, commandTimeout: 120); 
+                var data = await db.QueryAsync<LOG_RGLNR_Model>(dataQuery, parameters, commandTimeout: 120);
 
                 var recordsFiltered = await db.ExecuteScalarAsync<int>(filteredCountQuery, parameters);
 
                 var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BEN]");
-                Debug.WriteLine(companyPrefix);
                 db.Close();
 
                 return Json(new { draw, recordsFiltered, recordsTotal, data });
             }
+
         }
 
         [HttpPost]
