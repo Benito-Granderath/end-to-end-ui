@@ -4,28 +4,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wünsche Services GmbH &#128309; Monitoring Tool</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="~/lib/flowbite/flowbite.css" rel="stylesheet" />
+    <link href="~/lib/tailwindcss/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
     <header>
     </header>
-    <div class="container">
+    <div class="container mx-auto sm:px-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-t footer text-gray-700">
         <br />
-        <div class="container">
-            <img src="/Wuensche-group-logo.svg" alt="Wünsche Logo" width="150" height="38"/>
+        <div class="container mx-auto sm:px-4">
+            <img src="/Wuensche-group-logo.svg" alt="Wünsche Logo" width="150" height="38" />
 
         </div>
     </footer>
+    <script src="~/lib/tailwindcss/tailwind.min.css"></script>
+    <script src="~/lib/flowbite-datepicker/dist/js/datepicker-full.js"></script>
+    <script type="module" src="~/lib/flowbite-datepicker/dist/DateRangePicker.esm.min.js"></script>
+    <script src="~/lib/flowbite-datepicker/dist/js/locales/de.js"></script>
+    <script src="~/lib/flowbite/flowbite.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

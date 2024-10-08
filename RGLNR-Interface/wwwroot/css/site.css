@@ -1,3 +1,4 @@
+
 html {
   font-size: 14px;
 }
@@ -13,27 +14,10 @@ html {
     font-size: 16px;
   }
 }
-.navbar {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-}
 
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
 
 body {
-    font-family: "Roboto", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 500;
     font-style: normal;
     margin: 0;
@@ -44,140 +28,114 @@ body {
 }
 
 
-.display {
-    border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.9em;
-    min-width: 400px;
-    border-radius: 10px 10px 0 0;
-    overflow: hidden; 
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-}
-.display thead tr {
-    background-color: var(--table);
-    color: white;
-    text-align: left;
-    font-weight: bold;
-}
-
-.display th, .display td {
-    padding: 12px 15px;
-
-}
-.display tbody {
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 0.8em;
-}
-
-.display tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
-}
-
-
-
-.input-group > .form-select, .input-group > .form-control {
-    margin-right: 0px; 
-}
-
-
-.button-18 {
-    align-items: center;
-    background-color: var(--buttons);
-    border: 0;
-    border-radius: 10px;
-    box-sizing: border-box;
-    color: white;
-    cursor: pointer;
-    display: inline-flex;
-    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    justify-content: center;
-    line-height: 20px;
-    max-width: 480px;
-    min-height: 40px;
-    min-width: 0px;
-    overflow: hidden;
-    padding: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
-    text-align: center;
-    touch-action: manipulation;
-    transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
-    user-select: none;
-    -webkit-user-select: none;
-    vertical-align: middle;
-}
-.button-19 {
-    align-items: center;
-    background-color: var(--search);
-    border: 0;
-    border-radius: 100px;
-    box-sizing: border-box;
-    color: white;
-    cursor: pointer;
-    display: inline-flex;
-    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    justify-content: center;
-    line-height: 20px;
-    max-width: 480px;
-    min-height: 40px;
-    min-width: 0px;
-    overflow: hidden;
-    padding: 0px;
-    padding-left: 20px;
-    padding-right: 20px;
-    text-align: center;
-    touch-action: manipulation;
-    transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
-    user-select: none;
-    -webkit-user-select: none;
-    vertical-align: middle;
-}
-
-.button-18:hover,
-.button-18:focus {
-    background-color: #005A8D;
-    color: #ffffff;
-}
-
-.button-18:active {
-    background: #005A8D;
-    color: rgb(255, 255, 255, .7);
-}
-
-.button-19:hover,
-.button-19:focus {
-    background-color: #005A8D;
-    color: #ffffff;
-}
-
-.button-19:active {
-    background: #005A8D;
-    color: rgb(255, 255, 255, .7);
-}
-
-.page-item.active .page-link {
-    z-index: 3;
-    color: #fff;
-    background-color: var(--pagination);
-    border-color: var(--pagination);
-}
-
-.page-link {
+.custom-processing-row {
     position: relative;
-    display: block;
-    color: var(--pagination);
-    text-decoration: none;
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    height: 100px; 
 }
-a {
-    color: var(--pagination);
-    text-decoration: underline;
+
+.custom-processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9); 
+    z-index: 10;
+    pointer-events: none;
+}
+
+.dataTables_processing {
+    display: none !important;
+}
+
+.dt-button-collection {
+    position: absolute !important;
+    z-index: 9999 !important;
+    top: auto !important;
+    left: auto !important;
+    transform: translateY(10px) !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    display: block !important;
+    width: auto !important;
+    flex-direction: column !important;
+    white-space: normal !important;
+    max-width: 250px !important;
+    overflow-wrap: break-word !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    background-color: white !important;
+}
+
+    .dt-button-collection .dt-button {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 8px 16px !important;
+        background: white !important;
+        color: #1f2937 !important;
+        max-width: none !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        margin: 0 !important;
+    }
+
+        .dt-button-collection .dt-button:last-child {
+            border-bottom: none !important;
+        }
+
+        .dt-button-collection .dt-button:hover {
+            background-color: #f3f4f6 !important;
+        }
+
+
+.dt-buttons {
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+}
+
+
+#dropdownNavbar {
+    background: white;
+    text-align: left;
+    z-index: 10;
+    list-style: none;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    margin-top: 1rem;
+    width: auto;
+    min-width: 400px; 
+    max-width: 90vw; 
+}
+
+#dropdownNavbar .dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #444;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    #dropdownNavbar .dropdown-item:hover, #dropdownNavbar .dropdown-item:focus {
+        background-color: #f9f9f9;
+    }
+
+#dropdownNavbar hr {
+    margin: 0.5rem 0;
+    border-color: #ddd;
+}
+
+.custom-disabled {
+    color: #9ca3af; 
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+#logRGLNRTable tbody tr {
+    cursor: pointer;
 }

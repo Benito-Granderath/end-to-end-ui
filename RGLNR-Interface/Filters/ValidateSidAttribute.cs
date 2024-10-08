@@ -17,10 +17,9 @@ public class ValidateSidAttribute : ActionFilterAttribute
                 var username = context.HttpContext.User.Identity.Name;
                 if (!string.IsNullOrEmpty(username))
                 {
-                    var adService = context.HttpContext.RequestServices.GetService(typeof(ActiveDirectoryService)) as ActiveDirectoryService;
-                    var userSID = adService?.GetUserSID(username);
+                    var adService = context.HttpContext.RequestServices.GetService(typeof(ActiveDirectorySearch)) as ActiveDirectorySearch;
 
-                    if (string.IsNullOrEmpty(userSID))
+                    if (string.IsNullOrEmpty(username))
                     {
                         context.Result = new RedirectToActionResult("AccessDenied", "Home", null);
                     }

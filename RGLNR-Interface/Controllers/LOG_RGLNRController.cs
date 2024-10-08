@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using RGLNR_Interface.Services;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace RGLNR_Interface.Controllers
@@ -16,10 +17,10 @@ namespace RGLNR_Interface.Controllers
     {
         private readonly PermissionService _permissionService;
         private readonly IConfiguration _configuration;
-        private readonly ActiveDirectoryService _adService;
-        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ActiveDirectoryService adService)
+        private readonly ActiveDirectorySearch _adService;
+        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ActiveDirectorySearch adService)
         {
-            _permissionService = new PermissionService(configuration.GetConnectionString("DefaultConnection"));
+            _permissionService = new PermissionService(new ActiveDirectorySearch());
             _configuration = configuration;
             _adService = adService;
         }
@@ -28,26 +29,18 @@ namespace RGLNR_Interface.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                string username = User.Identity.Name;
-                string userSID = _adService.GetUserSID(username);
-                ViewBag.UserSID = userSID;
-                ViewBag.UserName = username;
+                string sAMAccountName = GetSamAccountName(User.Identity.Name);
+                ViewBag.UserName = sAMAccountName;
 
-                if (!string.IsNullOrEmpty(userSID))
-                {
-                    var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
 
-                    if (permissions == null || !permissions.Any())
-                    {
-                        return RedirectToAction("AccessDenied", "Home");
-                    }
+                var permissions = await _permissionService.GetUserPermissionsAsync(sAMAccountName);
 
-                    return View(permissions);
-                }
-                else
+                if (permissions == null || !permissions.Any())
                 {
                     return RedirectToAction("AccessDenied", "Home");
                 }
+
+                return View(permissions);
             }
             else
             {
@@ -55,6 +48,16 @@ namespace RGLNR_Interface.Controllers
             }
         }
         [HttpPost]
+        private string GetSamAccountName(string identityName)
+        {
+            if (!string.IsNullOrEmpty(identityName))
+            {
+                var parts = identityName.Split('\\');
+                return parts.Length > 1 ? parts[1] : identityName;
+            }
+
+            return identityName;
+        }
         public async Task<IActionResult> LoadData()
         {
             using (IDbConnection db = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
@@ -62,7 +65,6 @@ namespace RGLNR_Interface.Controllers
                 var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
                 var start = int.Parse(HttpContext.Request.Form["start"].FirstOrDefault() ?? "0");
                 var length = int.Parse(HttpContext.Request.Form["length"].FirstOrDefault() ?? "0");
-                var searchValue = HttpContext.Request.Form["search[value]"].FirstOrDefault();
                 bool minRGLNRParsed = int.TryParse(HttpContext.Request.Form["minRGLNR"].FirstOrDefault(), out int minRGLNR);
                 bool maxRGLNRParsed = int.TryParse(HttpContext.Request.Form["maxRGLNR"].FirstOrDefault(), out int maxRGLNR);
                 var pasteInvoices = HttpContext.Request.Form["pasteInvoices"].FirstOrDefault();
@@ -73,17 +75,19 @@ namespace RGLNR_Interface.Controllers
                 var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
                 var startDateBestätigungStr = HttpContext.Request.Form["bestaetigungStart"].FirstOrDefault();
                 var endDateBestätigungStr = HttpContext.Request.Form["bestaetigungEnd"].FirstOrDefault();
+                var searchField = HttpContext.Request.Form["searchField"].FirstOrDefault();
+                var searchValue = HttpContext.Request.Form["searchValue"].FirstOrDefault();
+
                 var invoiceList = !string.IsNullOrEmpty(pasteInvoices)
                     ? pasteInvoices.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(invoice => invoice.Trim()).ToArray()
                     : null;
                 DateTime? parsedStartDate = null, parsedEndDate = null;
                 List<int> userPermissionsDataAreaIds = new List<int>();
-
+                
                 if (companyPrefixParsed && companyPrefix == -1)
                 {
                     string username = User.Identity.Name;
-                    string userSID = _adService.GetUserSID(username);
-                    var permissions = await _permissionService.GetUserPermissionsAsync(userSID);
+                    var permissions = await _permissionService.GetUserPermissionsAsync(username);
 
                     userPermissionsDataAreaIds = permissions.Select(p => p.description).ToList();
 
@@ -93,34 +97,34 @@ namespace RGLNR_Interface.Controllers
                     userPermissionsDataAreaIds.Add(companyPrefix);
                 }
 
-                if (DateTime.TryParseExact(startDateStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startDate))
+                if (DateTime.TryParseExact(startDateStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startDate))
                 {
                     parsedStartDate = startDate;
                 }
 
-                if (DateTime.TryParseExact(endDateStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var endDate))
+                if (DateTime.TryParseExact(endDateStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var endDate))
                 {
                     parsedEndDate = endDate;
                 }
                 DateTime? parsedStartDateFällig = null, parsedEndDateFällig = null;
 
-                if (DateTime.TryParseExact(startDateFälligStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligStart))
+                if (DateTime.TryParseExact(startDateFälligStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligStart))
                 {
                     parsedStartDateFällig = faelligStart;
                 }
 
-                if (DateTime.TryParseExact(endDateFälligStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligEnd))
+                if (DateTime.TryParseExact(endDateFälligStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var faelligEnd))
                 {
                     parsedEndDateFällig = faelligEnd;
                 }
                 DateTime? parsedStartDateBestätigung = null, parsedEndDateBestätigung = null;
 
-                if (DateTime.TryParseExact(startDateBestätigungStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungStart))
+                if (DateTime.TryParseExact(startDateBestätigungStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungStart))
                 {
                     parsedStartDateBestätigung = bestaetigungStart;
                 }
 
-                if (DateTime.TryParseExact(endDateBestätigungStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungEnd))
+                if (DateTime.TryParseExact(endDateBestätigungStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var bestaetigungEnd))
                 {
                     parsedEndDateBestätigung = bestaetigungEnd;
                 }
@@ -139,9 +143,59 @@ namespace RGLNR_Interface.Controllers
                 {
                     baseQuery += " AND RGLNR <= @maxRGLNR";
                 }
+                if (!string.IsNullOrEmpty(searchField) && !string.IsNullOrEmpty(searchValue))
+                {
+                    switch (searchField)
+                    {
+                        case "searchallcategories":
+                            baseQuery += @" AND (
+                            RGLNR LIKE @searchValue
+                            OR Rechnung LIKE @searchValue
+                            OR Materialanforderung LIKE @searchValue
+                            OR [Ihr Zeichen] LIKE @searchValue
+                            OR [EDI Status] LIKE @searchValue
+                            OR job_nr LIKE @searchValue
+                            OR profile_name LIKE @searchValue
+                            OR status LIKE @searchValue
+                        )";
+                            break;
+
+                        case "searchrglnr":
+                            baseQuery += " AND RGLNR = @searchRGLNR";
+                            break;
+                        case "searchinvoice":
+                            baseQuery += " AND Rechnung = @Rechnung";
+                            break;
+                        case "searchamount":
+                            baseQuery += " AND RGLNR = @RGBETRAG";
+                            break;
+                        case "searchdebitorrequest":
+                            baseQuery += " AND Materialanforderung = @searchdebitorrequest";
+                            break;
+                        case "searchdebitorreference":
+                            baseQuery += " AND [Ihr Zeichen] = @searchdebitorreference";
+                            break;
+                        case "searchediinvoice":
+                            baseQuery += " AND [EDI Status] = @searchediinvoice";
+                            break;
+                        case "searchjobnr":
+                            baseQuery += " AND job_nr = @searchjobnr";
+                            break;
+                        case "searchlobsterprofile":
+                            baseQuery += " AND profile_name = @searchlobsterprofile";
+                            break;
+                        case "searchlobsterstatus":
+                            baseQuery += " AND status = @searchlobsterstatus";
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
+
                 if (invoiceList != null && invoiceList.Length > 0)
                 {
-                    baseQuery += " AND Rechnung IN @invoiceList"; 
+                    baseQuery += " AND Rechnung IN @invoiceList OR RGLNR IN @invoiceList"; 
                 }
                 if (parsedStartDateFällig.HasValue && parsedEndDateFällig.HasValue)
                 {
@@ -150,10 +204,6 @@ namespace RGLNR_Interface.Controllers
                 if (parsedStartDateBestätigung.HasValue && parsedEndDateBestätigung.HasValue)
                 {
                     baseQuery += " AND entry_date BETWEEN @bestaetigungStart AND @bestaetigungEnd";
-                }
-                if (!string.IsNullOrEmpty(searchValue))
-                {
-                    baseQuery += " AND (CAST(RGLNR AS VARCHAR) LIKE @searchValue OR Rechnung LIKE @searchValue OR Materialanforderung LIKE @searchValue OR [Ihr Zeichen] LIKE @searchValue OR job_nr LIKE @searchValue)";
                 }
 
                 if (userPermissionsDataAreaIds.Any())
@@ -170,7 +220,6 @@ namespace RGLNR_Interface.Controllers
                 db.Open();
                 var parameters = new
                 {
-                    searchValue = $"%{searchValue}%",
                     minRGLNR = minRGLNRParsed ? minRGLNR : (object)DBNull.Value,
                     maxRGLNR = maxRGLNRParsed ? maxRGLNR : (object)DBNull.Value,
                     startDate = parsedStartDate,
@@ -182,7 +231,17 @@ namespace RGLNR_Interface.Controllers
                     companyPrefix,
                     invoiceList,
                     start,
-                    length
+                    length,
+                    searchValue = $"%{searchValue}%",
+                    searchRGLNR = searchField == "searchrglnr" ? searchValue : (object)DBNull.Value,
+                    Rechnung = searchField == "searchinvoice" ? searchValue : (object)DBNull.Value,
+                    RGBETRAG = searchField == "searchamount" ? searchValue : (object)DBNull.Value,
+                    searchdebitorrequest = searchField == "searchdebitorrequest" ? searchValue : (object)DBNull.Value,
+                    searchdebitorreference = searchField == "searchdebitorreference" ? searchValue : (object)DBNull.Value,
+                    searchediinvoice = searchField == "searchediinvoice" ? searchValue : (object)DBNull.Value,
+                    searchjobnr = searchField == "searchjobnr" ? searchValue : (object)DBNull.Value,
+                    searchlobsterprofile = searchField == "searchlobsterprofile" ? searchValue : (object)DBNull.Value,
+                    searchlobsterstatus = searchField == "searchlobsterstatus" ? searchValue : (object)DBNull.Value
                 };
 
                 var data = await db.QueryAsync<LOG_RGLNR_Model>(dataQuery, parameters, commandTimeout: 120); 
@@ -196,6 +255,20 @@ namespace RGLNR_Interface.Controllers
                 return Json(new { draw, recordsFiltered, recordsTotal, data });
             }
         }
+
+        [HttpPost]
+        public IActionResult GetInvoiceDetails(string invoiceId)
+        {
+            string query = "SELECT * FROM [EndToEnd_BEN] WHERE Rechnung = @InvoiceId ORDER BY entry_date"; 
+            using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                var parameters = new { InvoiceId = invoiceId };
+                var results = connection.Query<LOG_RGLNR_Model>(query, parameters).ToList();
+
+                return Json(results);
+            }
+        }
+
 
 
     }

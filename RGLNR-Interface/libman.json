@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "provider": "cdnjs",
+      "library": "tailwindcss@2.2.19",
+      "destination": "wwwroot/lib/tailwindcss/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "flowbite@2.5.1",
+      "destination": "wwwroot/lib/flowbite/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "flowbite-datepicker@1.3.0",
+      "destination": "wwwroot/lib/flowbite-datepicker/"
+    }
+  ,
+{
+  "provider": "jsdelivr",
+  "library": "postcss@8.4.45",
+  "destination": "wwwroot/lib/postcss/"
+}
+]
+}

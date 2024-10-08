@@ -3,30 +3,40 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wünsche Services GmbH &#128309; Monitoring Tool</title>
-    <link href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <link href="~/lib/bootstrap/dist/css/" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" />
+    
 </head>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">End-to-End Monitoring</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <div class="navbar-nav" id="companyFilter">
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Mandant
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#" data-value="-1">Alle Mandanten</a></li>
-                            <div class="dropdown-divider"></div>
+<header class="antialiased">
+    <nav class="bg-white border-gray-200 py-3">
+        <div class="flex justify-between items-center w-full">
+            <div class="flex items-center">
+                <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <span class="text-2xl font-semibold whitespace-nowrap">End-To-End Dashboard</span>
+                </a>
+               
+            </div>
+            <div class="flex items-center space-x-4">
+                <button type="button" href="#" data-modal-toggle="userPermissionsModal" data-modal-target="userPermissionsModal" class="sm:block inline-flex items-center justify-center text-gray-900 bg-white border border-gray-730 hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none" id="user-menu-button" aria-expanded="false">
+                    Berechtigungen Verwalten
+                </button>
+
+                <div class="relative">
+                    <button id="navbarDropdown" data-dropdown-toggle="dropdownNavbar" type="button" class="sm:block inline-flex items-center justify-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none h-[38px]">
+                        Mandant Auswählen
+                        <svg class="w-4 h-4 ml-0.5 inline-block" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                    <div id="dropdownNavbar" class="hidden bg-white text-base z-10 list-none divide-y divide-gray-100 rounded shadow my-4 w-[400px]">
+                        <ul class="py-1" aria-labelledby="dropdownLargeButton">
+                            <li>
+                                <a class="dropdown-item block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" href="#" data-value="-1">Alle Mandanten</a>
+                            </li>
+                            <hr class="my-2 border-gray-200 dark:border-gray-600" />
                             @foreach (var option in new[] {
                             new { Value = 100, Text = "Wünsche Handelsgesellschaft mbH & Co. KG [100]" },
                             new { Value = 200, Text = "Dario GmbH & Co. KG [200]" },
@@ -36,109 +46,263 @@
                             new { Value = 420, Text = "Duo Fashion GmbH [420]" },
                             new { Value = 430, Text = "Flexxtrade GmbH & Co. KG [430]" },
                             new { Value = 510, Text = "Globaltronics GmbH & Co. KG [510]" },
-                            new { Value = 575, Text = "Müller-Licht International GmbH [575]" } })
+                            new { Value = 575, Text = "Müller-Licht International GmbH [575]" }
+                            })
                             {
+                                bool isDisabled = !Model.Any(p => p.description == option.Value);
                                 <li>
-                                    <a class="dropdown-item @(!Model.Any(p => p.description == option.Value) ? "disabled" : "")"
-                                       href="#" data-value="@option.Value">@option.Text</a>
+                                    <a class="dropdown-item block w-full px-4 py-2 text-sm
+                                       @(isDisabled ? "disabled custom-disabled text-gray-400 cursor-not-allowed opacity-50" : "text-gray-700 hover:bg-gray-100 cursor-pointer")"
+                                       href="@(isDisabled ? "javascript:void(0);" : "#")"
+                                       data-value="@option.Value"
+                                       @(isDisabled ? "aria-disabled='true'" : "")>
+                                       @option.Text
+                                    </a>
                                 </li>
                             }
                         </ul>
                     </div>
+
+
                 </div>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#userPermissionsModal">Berechtigungen anzeigen</a>
-                    </li>
-                </ul>
             </div>
         </div>
     </nav>
 </header>
-<div class="modal fade" id="userPermissionsModal" tabindex="-1" aria-labelledby="userPermissionsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="userPermissionsModalLabel">Berechtigungen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-0 transition-opacity ease-out duration-300" id="userPermissionsModal" tabindex="-1" aria-labelledby="userPermissionsModalLabel" aria-hidden="true">
+    <div class="relative p-4 w-full max-w-2xl max-h-full transform transition-transform duration-300 ease-out scale-95 opacity-0">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Berechtigungen
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="userPermissionsModal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Schließen</span>
+                </button>
             </div>
-            <div class="modal-body">
+            <div class="p-4 md:p-5 space-y-4">
                 <p style="font-family: 'Tahoma, sans-serif' color: #444; font-size: 16px;">
                     Nutzer
                     <span style="font-weight: 600; color: #40303f; font-size: 18px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">
                         @ViewBag.UserName
                     </span>
-                    authentifiziert via sID: <br/><br/>
-                    <span style="font-weight: 600; color: #40303f; font-size: 15px; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px;">@ViewBag.userSID</span>
                 </p>
                 @foreach (var permission in Model.Where(p => p.permissionID > 0))
                 {
                     <p><span style="color: grey; font-style: italic; font-family: 'Lucida Console', Monaco, monospace;">@permission.permissionID -</span> <span style="font-family: 'Lucida Console', Monaco, monospace; font-weight: 700;">Mandant @permission.description</span></p>
                 }
             </div>
-            <div class="modal-footer">
-                <a class="btn btn-outline-info" href="mailto:IT-Support@wuensche-sc.de?subject=EndToEnd%20Monitoring%20Berechtigungsanfrage&body=sID:%20 @Uri.EscapeDataString(ViewBag.UserSID)%0D%0AUsername:%20 @Uri.EscapeDataString(ViewBag.UserName)%0D%0A%0D%0AIch%20benötige%20Zugriff%20auf%20Mandanten:%0D%0A%0D%0A%0D%0A{hier Mandanten einfügen}">Berechtigungen anfragen</a>
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
+            <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                <a data-modal-hide="userPermissionsModal" type="button" id="sendEmailButton" href="mailto:IT-Support@wuensche-sc.de?subject=EndToEnd%20Monitoring%20Berechtigungsanfrage&body=sID:%20 @Uri.EscapeDataString(ViewBag.UserName)%0D%0AUsername:%20 @Uri.EscapeDataString(ViewBag.UserName)%0D%0A%0D%0AIch%20benötige%20Zugriff%20auf%20Mandanten:%0D%0A%0D%0A%0D%0A{hier Mandanten einfügen}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Berechtigungen anfragen</a>
+                <button data-modal-hide="userPermissionsModal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Schließen</button>
             </div>
         </div>
     </div>
 </div>
+<div id="alert-border-1" class="hidden flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800" role="alert">
+    <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+    </svg>
+    <div class="ms-3 text-sm font-medium">
+        Ihr Email-Client wurde geöffnet. 
+    </div>
+    <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-border-1" aria-label="Schließen">
+        <span class="sr-only">Schließen</span>
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+        </svg>
+    </button>
+</div>
+
+
 <body>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="input-group">
-                <input type="text" id="minRGLNR" class="form-control" placeholder="&#128317; Min. Rechnungslistennummer" aria-label="Min RGLNR">
-                <span class="input-group-text">-</span>
-                <input type="text" id="maxRGLNR" class="form-control" placeholder="&#128316; Max. Rechnungslistennummer" aria-label="Max RGLNR">
-            </div>
-        </div>
-        <div class="col-md-6">
-            <input type="text" id="pasteInvoices" class="form-control" placeholder="&#129534; Rechnungsnummern einfügen" aria-label="Rechnungsnummern separiert durch Komma oder Leerzeichen einfügen.">
+    <div class="pt-5 pr-10 flex justify-center items-center ">
+        <button class="tab px-4 py-2 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-gray-300 cursor-pointer" data-filter="rglnrFilter">Rechnungsliste</button>
+        <button class="tab px-4 py-2 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-gray-300 cursor-pointer" data-filter="Invoices">Rechnung</button>
+        <button class="tab px-4 py-2 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-gray-300 cursor-pointer" data-filter="dateRangeFilter">Zeitraum</button>
+    </div>
+
+    <div id="rglnrFilter" class="hidden p-3">
+        <div class="flex justify-center space-x-4">
+            <input id="minRGLNR" type="number" placeholder="Von-Nr." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/4 px-2">
+            <span class="mx-4 text-gray-500 pt-2">-</span>
+            <input id="maxRGLNR" type="number" placeholder="Bis-Nr." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/4 px-2">
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-md">
-            <div class="input-group">
-                <input type="text" name="dates" id="abgdatumzeitRange" class="form-select" placeholder="&#128197; Zeitraum auswählen für" />
-                <select id="dateColumnFilter" class="form-select">
+
+    <div id="Invoices" class="hidden p-3 flex flex-col items-center justify-center">
+        <form class="max-w-lg mx-auto">
+            <textarea id="pasteInvoices" rows="3" class="block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Rechnungsnummer(n) oder Liste einfügen..."></textarea>
+        </form>
+    </div>
+    <div id="dateRangeFilter" class="hidden p-3 flex flex-col items-center justify-center">
+        <div id="date-range-picker" class="flex justify-center space-x-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                    </svg>
+                </div>
+                <input id="datepicker-range-start" name="start" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10" placeholder="Von" autocomplete="off">
+            </div>
+            <span class="mx-4 text-gray-500 pt-2">-</span>
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                    </svg>
+                </div>
+                <input id="datepicker-range-end" name="end" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10" placeholder="Bis" autocomplete="off">
+            </div>
+            <span class="mx-4"></span>
+            <div class="relative">
+                <select id="dateColumnFilter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
                     <option value="datum">Datum</option>
-                    <option value="fällig">Fälligkeit</option>
-                    <option value="entry_date">Bestätigung</option>
+                    <option value="bestaetigung">Bestätigung</option>
+                    <option value="faellig">Fällig</option>
                 </select>
             </div>
         </div>
-        <div class="col-sm">
-            <button type="button" id="activateSearch" class="button-19" placeholder="Suchen" aria-label="Search">&#128269; Suchen</button>
-        </div>
     </div>
-    <table id="logRGLNRTable" class="display" style="width:100%" float="left">
-        <thead>
-            <tr>
-                <th>Rechnungsliste</th>
-                <th>Rechnung</th>
-                <th>Datum</th>
-                <th>Fällig</th>
-                <th>Bestätigung</th>
-                <th>Betrag</th>
-                <th>Anforderung Debitor</th>
-                <th>Debitorenreferenz</th>
-                <th>EDI-Rechnung</th>
-                <th>Job Nummer</th>
-                <th>Lobster Profil</th>
-                <th>Lobster Status</th>
+    <div class="my-4">
+        <hr class="full-width-hr" style="border-bottom: 2px solid gray; margin: 0;" />
+    </div>
+
+
+
+    <table id="logRGLNRTable" class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 rounded-t-lg">
+            <tr class="rounded-t-lg">
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Rechnungsliste</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnung</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Datum</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Fällig</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Bestätigung</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Betrag</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Anforderung Debitor</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitorenreferenz</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">EDI-Rechnung</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Job Nummer</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Lobster Profil</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tr-lg">Lobster Status</th>
             </tr>
         </thead>
     </table>
+    <div id="rowDetailsModal" data-modal-target="rowDetailsModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full h-full overflow-y-auto">
+        <div class="relative p-4 w-full max-w-4xl h-full md:h-auto mx-auto">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="flex justify-between items-center p-4 border-b dark:border-gray-600">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Details
+                    </h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="rowDetailsModal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Schließen</span>
+                    </button>
+                </div>
+                <div id="modalBody" class="p-6 space-y-6">
+                </div>
+                <div class="flex items-center p-6 space-x-2 rounded-b border-t border-gray-200 dark:border-gray-600">
+                    <button data-modal-hide="rowDetailsModal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none rounded-lg text-sm px-5 py-2.5 text-center">Schließen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+         
 </body>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.10/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById('userPermissionsModal');
+            const modalContent = modal.querySelector('.relative.p-4');
+
+            function showModal() {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('bg-opacity-50'); 
+                    modalContent.classList.add('scale-100', 'opacity-100'); 
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            }
+
+            function hideModal() {
+                modal.classList.remove('bg-opacity-50'); 
+                modalContent.classList.remove('scale-100', 'opacity-100'); 
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden'); 
+                }, 300); 
+            }
+
+            document.querySelectorAll('[data-modal-toggle="userPermissionsModal"]').forEach(button => {
+                button.addEventListener('click', showModal);
+            });
+
+            document.querySelectorAll('[data-modal-hide="userPermissionsModal"]').forEach(button => {
+                button.addEventListener('click', hideModal);
+            });
+        });
+
+
+    </script>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const tabs = document.querySelectorAll('.tab');
+            let activeTab = tabs[1]; 
+            const filterDiv = document.getElementById(activeTab.getAttribute('data-filter'));
+
+            activeTab.classList.add('border-blue-600', 'text-blue-600');
+            filterDiv.style.display = 'block';
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    const filterId = this.getAttribute('data-filter');
+                    const filterDiv = document.getElementById(filterId);
+
+                    if (activeTab !== this) {
+                        const activeFilter = document.getElementById(activeTab.getAttribute('data-filter'));
+                        activeFilter.style.display = 'none';
+                        activeTab.classList.remove('border-blue-600', 'text-blue-600');
+
+                        filterDiv.style.display = 'block';
+                        this.classList.add('border-blue-600', 'text-blue-600');
+                        activeTab = this;
+                    }
+                });
+            });
+        });
+
+
+            
+        function closeDropdown() {
+            document.getElementById('dropdownNavbar').classList.add('hidden');
+        }
+
+        document.querySelectorAll('#dropdownNavbar a').forEach(item => {
+            item.addEventListener('click', () => {
+                closeDropdown();
+            });
+        });
+        document.getElementById('sendEmailButton').addEventListener('click', function () {
+            document.getElementById('alert-border-1').classList.remove('hidden');
+        });
+
+        document.querySelector('[data-dismiss-target="#alert-border-1"]').addEventListener('click', function () {
+            document.getElementById('alert-border-1').classList.add('hidden');
+        });
+
         var currentCompanyFilter = '-1';
 
         document.querySelectorAll('.dropdown-item').forEach(item => {
@@ -152,6 +316,25 @@
             });
         });
 
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateRangePickerElement = document.getElementById("date-range-picker");
+            const $datePicker1 = document.getElementById("datepicker-range-start");
+
+            const $datePicker2 = document.getElementById("datepicker-range-end");
+
+            const dateRangePicker = new DateRangePicker(dateRangePickerElement, {
+                inputs: [$datePicker1, $datePicker2],
+                language: 'de',
+                format: 'dd.mm.yyyy',
+                clearBtn: true,
+                todayBtn: true,
+                todayBtnMode: 1,
+            });
+        });
+
+        var selectedField = 'searchallcategories';
+
         moment.locale('de');
         $(document).ready(function () {
             var table = $('#logRGLNRTable').DataTable({
@@ -159,99 +342,253 @@
                 "serverSide": true,
                 "colReorder": true,
                 "ordering": false,
-                "dom": "lfrBtip",
-                "iDisplayLength": 10,
+                "dom": '<"flex justify-between items-center p-2"' +
+                    '<"my-custom-element p-2">' +
+                    '<"l-built-in-elements flex items-center space-x-2 hidden"l>' +
+                    '<"dt-built-in-elements hidden flex items-center space-x-6 ml-auto"' +
+                    '<"flex-grow">' +
+                    '<"dt-buttons flex items-center space-x-2 whitespace-nowrap"B>' +  
+                    '>' +
+                    '>' +
+                    'rt' +
+                    '<"flex justify-between items-center p-2"<i><p>>',
+
+                "initComplete": function () {
+                    $('#logRGLNRTable_length label').removeClass().addClass('text-sm text-gray-600');
+                    $('#logRGLNRTable_length select').removeClass().addClass('text-sm px-3 py-1 border border-gray-300 rounded-lg bg-white');
+                    $('#logRGLNRTable_paginate').addClass('text-sm space-x-2 flex items-center');
+                    $('#logRGLNRTable_paginate .paginate_button').removeClass().addClass('text-sm px-2 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-100');
+                    $('#logRGLNRTable_info').addClass('text-sm text-gray-600');
+                    $('.dt-built-in-elements').removeClass('hidden');
+
+                    $('.l-built-in-elements').removeClass('hidden');
+                    $('.my-custom-element').append(`
+                <form id="generalsearchform" class="max-w-lg mx-auto">
+                    <div class="relative flex">
+                        <label for="search-dropdown" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                        <button id="dropdown-button" class="flex-shrink-0 z-10 inline-flex items-center py-2 px-3 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600" type="button">
+                            Alle Kategorien
+                            <svg class="w-2 h-2 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l4 4 4-4"/>
+                            </svg>
+                        </button>
+                        <div id="dropdown" class="absolute top-full mt-2 left-0 z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
+                                <li>
+                                    <button type="button" data-field="searchallcategories" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Alle Kategorien</button>
+                                </li>
+                                <hr class="my-2 border-gray-200 dark:border-gray-600" />
+                                <li>
+                                    <button type="button" data-field="searchrglnr" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Rechnungsliste</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchinvoice" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Rechnungsnummer</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchamount" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Betrag</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchdebitorrequest" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Anforderung Debitor</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchdebitorreference" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Debitorenreferenz</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchediinvoice" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edi-Rechnung</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchjobnr" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Job Nummer</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchlobsterprofile" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Lobster Profil</button>
+                                </li>
+                                <li>
+                                    <button type="button" data-field="searchlobsterstatus" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Lobster Status</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="relative w-full">
+                            <input type="search" id="dynamicInput" class="block p-2 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Suchen..." autocomplete="off" required />
+                            <button id="activateSearch" type="submit" class="absolute top-0 right-0 p-2 text-sm font-medium h-full text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 19l-4-4M15 8a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/>
+                                </svg>
+                                <span class="sr-only">Suche</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            `);
+
+     
+                    $('.dropdown-search-item').on('click', function (event) {
+                        event.preventDefault();
+                        selectedField = $(this).data('field');  
+
+                        var selectedCategory = $(this).text();
+
+                        $('#dropdown-button').html(selectedCategory +
+                            '<svg class="w-2 h-2 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">' +
+                            '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l4 4 4-4"/></svg>');
+
+                        $('#dropdown').addClass('hidden');
+                    });
+
+                    document.getElementById("generalsearchform").addEventListener("submit", function (event) {
+                        event.preventDefault();  
+
+                        table.draw();
+                    });
+
+                    $('#dropdown-button').on('click', function (event) {
+                        event.preventDefault();
+                        $('#dropdown').toggleClass('hidden');
+                    });
+
+                    $(document).on('click', function (event) {
+                        if (!$(event.target).closest('#dropdown-button, #dropdown').length) {
+                            $('#dropdown').addClass('hidden');
+                        }
+                    });
+
+                },
+                "language": {
+                    "processing": "<div class='custom-processing flex items-center justify-center'>" +
+                        "<div class='spinner animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500'></div>" +
+                        "<span class='ml-4 text-xl text-gray-600'>Daten werden geladen...</span>" +
+                        "</div>",
+                },
+                buttons: [
+                    {
+                        extend: 'collection',
+                        text: '<span class="flex items-center"><i class="mr-1 mt-0.5 fa-solid fa-table-columns h-4 w-4"></i>Spalten anpassen<svg class="ml-1 h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" /></svg></span>',
+                        className: 'inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700',
+                        buttons: function (dt) {
+                            var buttons = [];
+                            dt.columns().every(function (idx) {
+                                var column = this;
+                                var title = $(column.header()).text();
+                                buttons.push({
+                                    text: function () {
+                                        var checked = column.visible() ? 'checked' : '';
+                                        return '<label class="flex items-center">' +
+                                            '<input type="checkbox" ' + checked + ' class="mr-2 dt-checkbox text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" ' +
+                                            'data-column-index="' + idx + '" onclick="event.stopPropagation();">' +
+                                            title + '</label>';
+                                    },
+                                    action: function () {
+                                        
+                                    },
+                                    className: 'dt-button'
+                                });
+                            });
+                            return buttons;
+                        },
+                        init: function (dt, node, config) {
+                            $(document).on('change', 'input.dt-checkbox', function () {
+                                var colIdx = $(this).data('column-index');
+                                var vis = $(this).prop('checked');
+                                dt.column(colIdx).visible(vis);
+                            });
+                        }
+                    },
+                    {
+                        extend: 'collection',
+                        text: '<span class="flex items-center"><i class="mr-1 fas fa-download h-4 w-4"></i>Exportieren <svg class="ml-1 h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" /></svg></span>',
+                        className: 'inline-flex items-center justify-center rounded-lg text-white bg-blue-700 px-3 py-2 text-sm font-medium hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800',
+                        buttons: [
+                            {
+                                extend: 'copy',
+                                exportOptions: { columns: ':visible' },
+                                text: '<i class="mr-1 fas fa-copy h-4 w-4"></i> Kopieren',
+                                className: 'dt-button-option'
+                            },
+                            {
+                                extend: 'csv',
+                                exportOptions: { columns: ':visible' },
+                                text: '<i class="mr-1 fas fa-file-csv h-4 w-4"></i> CSV',
+                                className: 'dt-button-option'
+                            },
+                            {
+                                extend: 'excel',
+                                exportOptions: { columns: ':visible' },
+                                text: '<i class="mr-1 fas fa-file-excel h-4 w-4"></i> Excel',
+                                className: 'dt-button-option'
+                            },
+                            {
+                                extend: 'pdf',
+                                exportOptions: { columns: ':visible' },
+                                orientation: 'landscape',
+                                pageSize: 'A3',
+                                text: '<i class="mr-1 fas fa-file-pdf h-4 w-4"></i> PDF',
+                                className: 'dt-button-option'
+                            },
+                            {
+                                extend: 'print',
+                                exportOptions: { columns: ':visible' },
+                                text: '<i class="mr-1 fas fa-print h-4 w-4"></i> Drucken',
+                                className: 'dt-button-option'
+                            }
+                        ]
+                    }
+                ],
+                "iDisplayLength": 15,
                 "oLanguage": {
                     "sUrl": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json",
-                    "sSearch": "Allgemeine Suche:"
                 },
                 columnDefs: [
                     {
                         targets: [3, 8, 9, 10, 11],
                         visible: false
                     }
-                ], 
-                buttons: [
-                              {
-                extend: 'copy',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
-                    text: 'Kopieren',
-                    className: 'button-18'
-                },
-                {
-                    extend: 'csv',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
-                    className: 'button-18'
-                },
-                {
-                    extend: 'excel',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
-                    className: 'button-18'
-                },
-                {
-                    extend: 'pdf',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
-                    orientation: 'landscape',
-                    pageSize: 'A3',
-                    className: 'button-18'
-                },
-                {
-                    extend: 'print',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
-                    text: 'Drucken',
-                    className: 'button-18'
-                }, 
-                { 
-                    extend: 'colvis', 
-                    text: 'Spalten ein- und ausblenden',
-                    className: 'button-18'
-                } 
                 ],
-
-                "lengthMenu": [[5, 10, 25, 50, 100, 200, 100000], [5, 10, 25, 50, 100, 200, "Alle | ⚠ Nur auf gefilterte Daten anwenden ⚠"]],
+                "lengthMenu": [[5, 10, 15, 20, 25, 50, 100, 200, 100000], [5, 10, 15, 20, 25, 50, 100, 200, "Alle"]],
 
                 "ajax": {
-                    "url": "@Url.Action("LoadData", "LOG_RGLNR")", 
+                    "url": "@Url.Action("LoadData", "LOG_RGLNR")",
                     "type": "POST",
                     "data": function (d) {
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
                         d.pasteInvoices = $("#pasteInvoices").val();
                         d.companyPrefix = currentCompanyFilter;
-                        var dateRangePicker = $("#abgdatumzeitRange").data('daterangepicker');
-                        if ($("#abgdatumzeitRange").val()) {
-                            var selectedColumn = $('#dateColumnFilter').val();
+                        d.searchField = selectedField;
+                        d.searchValue = $("#dynamicInput").val();
+                        var startDateStr = document.getElementById('datepicker-range-start').value;
+                        var endDateStr = document.getElementById('datepicker-range-end').value;
+
+                        if (startDateStr && endDateStr) {
+                            var selectedColumn = document.getElementById('dateColumnFilter').value;
+
+                            function formatDate(inputDate) {
+                                var parts = inputDate.split('.');
+                                return parts[2] + '-' + parts[1] + '-' + parts[0];
+                            }
+                            
+                            var formattedStartDate = formatDate(startDateStr);
+                            var formattedEndDate = formatDate(endDateStr);
+
                             if (selectedColumn === 'datum') {
-                                d.startDate = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
-                                d.endDate = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
+                                d.startDate = formattedStartDate;
+                                d.endDate = formattedEndDate;
                                 d.faelligStart = null;
                                 d.faelligEnd = null;
                                 d.bestaetigungStart = null;
                                 d.bestaetigungEnd = null;
-                            } else if (selectedColumn == 'fällig') {
-                                d.faelligStart = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
-                                d.faelligEnd = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
+                            } else if (selectedColumn === 'faellig') {
+                                d.faelligStart = formattedStartDate;
+                                d.faelligEnd = formattedEndDate;
                                 d.startDate = null;
                                 d.endDate = null;
                                 d.bestaetigungStart = null;
                                 d.bestaetigungEnd = null;
-                            } else if (selectedColumn == 'entry_date') {
+                            } else if (selectedColumn === 'bestaetigung') {
+                                d.bestaetigungStart = formattedStartDate;
+                                d.bestaetigungEnd = formattedEndDate;
                                 d.startDate = null;
                                 d.endDate = null;
                                 d.faelligStart = null;
                                 d.faelligEnd = null;
-                                d.bestaetigungStart = dateRangePicker.startDate.format("YYYY-MM-DD HH:mm");
-                                d.bestaetigungEnd = dateRangePicker.endDate.format("YYYY-MM-DD HH:mm");
                             } else {
                                 d.startDate = null;
                                 d.endDate = null;
@@ -260,6 +597,13 @@
                                 d.bestaetigungStart = null;
                                 d.bestaetigungEnd = null;
                             }
+                        } else {
+                            d.startDate = null;
+                            d.endDate = null;
+                            d.faelligStart = null;
+                            d.faelligEnd = null;
+                            d.bestaetigungStart = null;
+                            d.bestaetigungEnd = null;
                         }
                     }
                 },
@@ -278,9 +622,9 @@
                         }
                     },
                     { "data": "rechnungsbetrag" },
-                    { "data": "materialanforderung"},
-                    { "data": "ihrZeichen", "name": "IhrZeichen"},
-                    { 
+                    { "data": "materialanforderung" },
+                    { "data": "ihrZeichen", "name": "IhrZeichen" },
+                    {
                         "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
                         "render": function (data, type, row) {
                             if (data === "Übertagen") {
@@ -288,7 +632,7 @@
                             } else if (data === "Bereit") {
                                 return "Nein"
                             } else {
-                                return data; 
+                                return data;
                             }
                         }
                     },
@@ -297,44 +641,153 @@
                     { "data": "status" }
                 ],
                 "order": [[2, "desc"]],
-                "deferRender": true
-            });
-            $('#abgdatumzeitRange').daterangepicker({
-                
-                autoUpdateInput: false,
-                locale: {
-                    cancelLabel: 'Zurücksetzen',
-                    applyLabel: 'Anwenden',
-                    format: "DD.MM.YYYY HH:mm"
+                "deferRender": true,
+                "stripeClasses": [],
+                "rowCallback": function (row, data, index) {
+                    $(row).addClass('bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600');
+
+                    $('td', row).addClass('px-4 py-2 text-gray-500 dark:text-gray-400');
                 }
             });
 
-            $('#abgdatumzeitRange').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD HH:mm') + ' - ' + picker.endDate.format('YYYY-MM-DD HH:mm'));
-                table.draw();
-            });
-
-            $('#abgdatumzeitRange').on('cancel.daterangepicker', function(ev, picker) {
-                $(this).val('');
-                table.draw();
-            });
-            $('#dateColumnFilter').on('change', function () {
-                if ($("#abgdatumzeitRange").val()) {
-                    table.draw();
-                }
-            });
-
-            $('#companyFilter').on('change', function() {
-                table.draw();
-            });
-            $('#activateSearch').on('click', function () {
+            function handleRGLNRChange() {
                 var minRGLNR = $('#minRGLNR').val();
                 var maxRGLNR = $('#maxRGLNR').val();
                 var pasteInvoices = $('#pasteInvoices').val();
                 table.draw();
+            }
+
+            $('#minRGLNR').on('input', handleRGLNRChange);
+            $('#maxRGLNR').on('input', handleRGLNRChange);
+            $('#pasteInvoices').on('input', handleRGLNRChange);
+
+            document.getElementById('dateColumnFilter').addEventListener('change', function () {
+                if (document.getElementById('datepicker-range-start').value || document.getElementById('datepicker-range-end').value) {
+                    table.draw();
+                }
+            });
+            $('#datepicker-range-start, #datepicker-range-end').on('changeDate', function (ev, picker) {
+                console.log('Zeitraum angewendett');
+                table.draw();  
             });
 
+            table.on('buttons-popover.dt', function () {
+                $('.dt-button-collection .dt-button').addClass('dt-button-option');
+            });
+            $('#logRGLNRTable_paginate').addClass('text-sm space-x-2 flex items-center');
+
+            $('#logRGLNRTable_paginate .paginate_button').removeClass().addClass('text-sm px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-100');
+
+            $('#logRGLNRTable_info').addClass('text-sm text-gray-600');
+
+            $('#logRGLNRTable_length select').removeClass().addClass('text-sm px-3 py-1 border border-gray-300 rounded-lg bg-white');
+
+            $('#companyFilter').on('change', function(e) {
+                table.draw();
+            });
+            $('#logRGLNRTable tbody').on('click', 'tr', function () {
+                var data = table.row(this).data();
+                if (data) {
+                    var invoiceId = data.rechnung;
+
+                    $.ajax({
+                        url: '@Url.Action("GetInvoiceDetails", "LOG_RGLNR")', 
+                        type: 'POST',
+                        data: { invoiceId: invoiceId },
+                        success: function (response) {
+                            showModalWithData(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Fehler: ', error);
+                        }
+                    });
+                }
+            });
+
+            function showModalWithData(dataArray) {
+                $('#modalTitle').text('Details zu Rechnung: ' + dataArray[0].rechnung);
+
+                var tabsHeader = `
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700" id="tabs" data-tabs-toggle="#tabs-content" role="tablist">
+            `;
+                var tabsContent = '<div id="tabs-content">';
+
+                dataArray.forEach(function (data, index) {
+                    var tabId = 'tab-' + index;
+                    var contentId = 'tab-content-' + index;
+
+                    var tabButtonClass = index === 0
+                        ? 'inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active'
+                        : 'inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300';
+
+                    tabsHeader += `
+                <li class="mr-2" role="presentation">
+                    <button class="${tabButtonClass}" id="${tabId}" data-tabs-target="#${contentId}" type="button" role="tab" aria-controls="${contentId}" aria-selected="${index === 0 ? 'true' : 'false'}">
+                        Eintrag ${index + 1} (${moment(data.datum).format('DD.MM.YYYY')})
+                    </button>
+                </li>
+                `;
+
+                    var contentClass = index === 0
+                        ? 'p-4 bg-gray-50 rounded-lg dark:bg-gray-800'
+                        : 'hidden p-4 bg-gray-50 rounded-lg dark:bg-gray-800';
+
+                    tabsContent += `
+                <div class="${contentClass}" id="${contentId}" role="tabpanel" aria-labelledby="${tabId}">
+                    <p><strong>Rechnungsliste:</strong> ${data.rglnr}</p>
+                    <p><strong>Datum:</strong> ${moment(data.datum).format('DD.MM.YYYY')}</p>
+                    <p><strong>Fällig:</strong> ${moment(data.fällig).format('DD.MM.YYYY')}</p>
+                    <p><strong>Bestätigung:</strong> ${moment(data.entry_date).format('DD.MM.YYYY HH:mm')}</p>
+                    <p><strong>Betrag:</strong> ${data.rechnungsbetrag}</p>
+                    <p><strong>Anforderung Debitor:</strong> ${data.materialanforderung}</p>
+                    <p><strong>Debitorenreferenz:</strong> ${data.ihrZeichen}</p>
+                    <p><strong>EDI-Rechnung:</strong> ${data.ediStatus}</p>
+                    <p><strong>Job Nummer:</strong> ${data.job_nr}</p>
+                    <p><strong>Lobster Profil:</strong> ${data.profile_name}</p>
+                    <p><strong>Lobster Status:</strong> ${data.status}</p>
+                </div>
+                `;
+                });
+
+                tabsHeader += '</ul>';
+                tabsContent += '</div>';
+
+                var modalContent = tabsHeader + tabsContent;
+
+                $('#modalBody').html(modalContent);
+
+                initializeTabs();
+
+                var modalElement = document.getElementById('rowDetailsModal');
+                var modal = new Modal(modalElement);
+                modal.show();
+
+                document.querySelectorAll('[data-modal-hide="rowDetailsModal"]').forEach((button) => {
+                    button.addEventListener('click', function () {
+                        modal.hide();
+                    });
+                });
+            }
+
+            function initializeTabs() {
+                const tabs = document.querySelectorAll('#tabs button');
+                let activeTab = tabs[0]; 
+
+                document.querySelector(activeTab.getAttribute('data-tabs-target')).classList.remove('hidden');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function () {
+                        document.querySelector(activeTab.getAttribute('data-tabs-target')).classList.add('hidden');
+                        activeTab.classList.remove('text-blue-600', 'border-blue-600');
+
+                        const newContent = document.querySelector(this.getAttribute('data-tabs-target'));
+                        newContent.classList.remove('hidden');
+                        this.classList.add('text-blue-600', 'border-blue-600');
+
+                        activeTab = this;
+                    });
+                });
+            }
         });
     </script>
 }
-

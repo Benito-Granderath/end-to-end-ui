@@ -4,20 +4,29 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using RGLNR_Interface.Services;
+using Microsoft.AspNetCore.Server.HttpSys;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 #pragma warning disable CA1416 // Plattformkompatibilität überprüfen
 
+builder.WebHost.UseHttpSys(options =>
+{
+    options.Authentication.Schemes = AuthenticationSchemes.Negotiate;
+    options.Authentication.AllowAnonymous = false;
+    options.MaxConnections = null;
+    options.MaxRequestBodySize = 30000000;
+});
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new ValidateSidAttribute());
-});
+}).AddRazorRuntimeCompilation();
+
 builder.Services.AddScoped<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<ActiveDirectoryService>();
-builder.Services.AddAuthentication(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme);
+builder.Services.AddScoped<ActiveDirectorySearch>();
+builder.Services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
