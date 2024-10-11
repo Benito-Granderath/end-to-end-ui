@@ -176,7 +176,8 @@
     <table id="logRGLNRTable" class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 rounded-t-lg">
             <tr class="rounded-t-lg">
-                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Rechnungsliste</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Ziel</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnungsliste</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnung</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Datum</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Fällig</th>
@@ -184,7 +185,7 @@
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Betrag</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Anforderung Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitorenreferenz</th>
-                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">EDI-Rechnung</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Erstellt Von</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Job Nummer</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Lobster Profil</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tr-lg">Lobster Status</th>
@@ -379,6 +380,9 @@
                                 </li>
                                 <hr class="my-2 border-gray-200 dark:border-gray-600" />
                                 <li>
+                                    <button type="button" data-field="searchziel" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ziel</button>
+                                </li>
+                                <li>
                                     <button type="button" data-field="searchrglnr" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Rechnungsliste</button>
                                 </li>
                                 <li>
@@ -394,7 +398,7 @@
                                     <button type="button" data-field="searchdebitorreference" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Debitorenreferenz</button>
                                 </li>
                                 <li>
-                                    <button type="button" data-field="searchediinvoice" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edi-Rechnung</button>
+                                    <button type="button" data-field="searchcreatedby" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Erstellt Von</button>
                                 </li>
                                 <li>
                                     <button type="button" data-field="searchjobnr" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Job Nummer</button>
@@ -538,7 +542,7 @@
                 },
                 columnDefs: [
                     {
-                        targets: [3, 8, 9, 10, 11],
+                        targets: [4, 10, 11, 12],
                         visible: false
                     }
                 ],
@@ -548,6 +552,7 @@
                     "url": "@Url.Action("LoadData", "LOG_RGLNR")",
                     "type": "POST",
                     "data": function (d) {
+
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
                         d.pasteInvoices = $("#pasteInvoices").val();
@@ -608,6 +613,20 @@
                     }
                 },
                 "columns": [
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            var badges = '';
+                            const dest = data.destinationType
+                            if (data.destinationType) {
+                                badges += `<span class="text-white bg-gradient-to-r from-blue-400 via-blue-450 to-blue-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 rounded px-2 py-1 mr-1">${dest}</span>`;
+                            }
+                            if (data.profile_name) {
+                                badges += '<span class="text-white bg-gradient-to-r from-purple-400 via-purple-450 to-purple-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 px-2 py-1 rounded mr-1">EDI</span>';
+                            }
+                            return badges || '';
+                        }
+                    },
                     { "data": "rglnr" },
                     { "data": "rechnung" },
                     { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
@@ -623,24 +642,14 @@
                     },
                     { "data": "rechnungsbetrag" },
                     { "data": "materialanforderung" },
-                    { "data": "ihrZeichen", "name": "IhrZeichen" },
-                    {
-                        "data": "ediStatus", "name": "EDIStatus", "autoWidth": true,
-                        "render": function (data, type, row) {
-                            if (data === "Übertagen") {
-                                return "Ja"
-                            } else if (data === "Bereit") {
-                                return "Nein"
-                            } else {
-                                return data;
-                            }
-                        }
-                    },
+                    { "data": "ihrzeichen" },
+                    { "data": "createdby" },
                     { "data": "job_nr" },
                     { "data": "profile_name" },
-                    { "data": "status" }
+                    { "data": "status" },
+
                 ],
-                "order": [[2, "desc"]],
+                "order": [[3, "desc"]],
                 "deferRender": true,
                 "stripeClasses": [],
                 "rowCallback": function (row, data, index) {
@@ -733,19 +742,31 @@
                         : 'hidden p-4 bg-gray-50 rounded-lg dark:bg-gray-800';
 
                     tabsContent += `
-                <div class="${contentClass}" id="${contentId}" role="tabpanel" aria-labelledby="${tabId}">
-                    <p><strong>Rechnungsliste:</strong> ${data.rglnr}</p>
-                    <p><strong>Datum:</strong> ${moment(data.datum).format('DD.MM.YYYY')}</p>
-                    <p><strong>Fällig:</strong> ${moment(data.fällig).format('DD.MM.YYYY')}</p>
-                    <p><strong>Bestätigung:</strong> ${moment(data.entry_date).format('DD.MM.YYYY HH:mm')}</p>
-                    <p><strong>Betrag:</strong> ${data.rechnungsbetrag}</p>
-                    <p><strong>Anforderung Debitor:</strong> ${data.materialanforderung}</p>
-                    <p><strong>Debitorenreferenz:</strong> ${data.ihrZeichen}</p>
-                    <p><strong>EDI-Rechnung:</strong> ${data.ediStatus}</p>
-                    <p><strong>Job Nummer:</strong> ${data.job_nr}</p>
-                    <p><strong>Lobster Profil:</strong> ${data.profile_name}</p>
-                    <p><strong>Lobster Status:</strong> ${data.status}</p>
-                </div>
+                    <div class="${contentClass} p-4" id="${contentId}" role="tabpanel" aria-labelledby="${tabId}">
+                        <div class="border-b-2 pb-4 mb-4">
+
+                            <p><strong>Rechnungsliste:</strong> ${data.rglnr ? data.rglnr : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Datum:</strong> ${data.datum ? moment(data.datum).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Kein Datum verfügbar</span>'}</p>
+                            <p><strong>Fällig:</strong> ${data.fällig ? moment(data.fällig).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Fälligkeitsdatum nicht festgelegt</span>'}</p>
+                            <p><strong>Bestätigung:</strong> ${data.entry_date ? moment(data.entry_date).format('DD.MM.YYYY HH:mm') : '<span class="text-gray-500 italic">Bestätigung nicht verfügbar</span>'}</p>
+                            <p><strong>Betrag:</strong> ${data.rechnungsbetrag ? data.rechnungsbetrag : '<span class="text-gray-500 italic">Betrag nicht angegeben</span>'}</p>
+                            <p><strong>Anforderung Debitor:</strong> ${data.materialanforderung ? data.materialanforderung : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Debitorenreferenz:</strong> ${data.ihrzeichen ? data.ihrzeichen : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Job Nummer:</strong> ${data.job_nr ? data.job_nr : '<span class="text-gray-500 italic">Keine Jobnummer</span>'}</p>
+                            <p><strong>Lobster Profil:</strong> ${data.profile_name ? data.profile_name : '<span class="text-gray-500 italic">Profil nicht verfügbar</span>'}</p>
+                            <p><strong>Lobster Status:</strong> ${data.status ? data.status : '<span class="text-gray-500 italic">Status nicht verfügbar</span>'}</p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Lasernet</h2>
+                            <p><strong>Drucker:</strong> ${data.printer ? data.printer : '<span class="text-gray-500 italic">Kein Drucker verfügbar</span>'}</p>
+                            <p><strong>Email Von:</strong> ${data.emailfrom ? data.emailfrom : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Email Zu:</strong> ${data.emailto ? data.emailto : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Port:</strong> ${data.customport ? data.customport : '<span class="text-gray-500 italic">Kein Port verfügbar</span>'}</p>
+                            <p><strong>Erstellungsdatum:</strong> ${data.createddatetime ? moment(data.createddatetime).format('DD.MM.YYYY HH:mm.ss') : '<span class="text-gray-500 italic">Erstellungsdatum nicht verfügbar</span>'}</p>
+                        </div>
+
+                    </div>
                 `;
                 });
 

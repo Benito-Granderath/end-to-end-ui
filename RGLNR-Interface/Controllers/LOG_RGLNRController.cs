@@ -87,6 +87,7 @@ namespace RGLNR_Interface.Controllers
                 DateTime? parsedStartDate = null, parsedEndDate = null;
                 List<int> userPermissionsDataAreaIds = new List<int>();
                 string[] columnMapping = new string[] {
+                    "DESTINATIONTYPE",
                     "RGLNR",
                     "Rechnung",
                     "Datum",
@@ -94,11 +95,11 @@ namespace RGLNR_Interface.Controllers
                     "entry_date",
                     "Rechnungsbetrag",
                     "Materialanforderung",
-                    "IhrZeichen",
-                    "EDIStatus",
+                    "ihrzeichen",
+                    "createdby",
                     "job_nr",
                     "profile_name",
-                    "status"
+                    "status",
                 };
 
                 if (companyPrefixParsed && companyPrefix == -1)
@@ -145,7 +146,7 @@ namespace RGLNR_Interface.Controllers
                     parsedEndDateBestätigung = bestaetigungEnd;
                 }
 
-                string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BEN] WHERE 1=1";
+                string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BENTest] WHERE 1=1";
 
                 if (parsedStartDate.HasValue && parsedEndDate.HasValue)
                 {
@@ -165,34 +166,38 @@ namespace RGLNR_Interface.Controllers
                     {
                         case "searchallcategories":
                             baseQuery += @" AND (
-                            RGLNR LIKE @searchValue
+                            DESTINATIONTYPE LIKE @searchValue
+                            OR Method LIKE @searchValue
+                            OR RGLNR LIKE @searchValue
                             OR Rechnung LIKE @searchValue
                             OR Materialanforderung LIKE @searchValue
-                            OR [Ihr Zeichen] LIKE @searchValue
-                            OR [EDI Status] LIKE @searchValue
+                            OR ihrzeichen LIKE @searchValue
+                            OR createdby LIKE @searchValue
                             OR job_nr LIKE @searchValue
                             OR profile_name LIKE @searchValue
                             OR status LIKE @searchValue
                         )";
                             break;
-
+                        case "searchziel":
+                            baseQuery += " AND DESTINATIONTYPE = @searchziel OR Method = @searchziel";
+                            break;
                         case "searchrglnr":
                             baseQuery += " AND RGLNR = @searchRGLNR";
                             break;
                         case "searchinvoice":
-                            baseQuery += " AND Rechnung = @Rechnung";
+                            baseQuery += " AND Rechnung = @searchinvoice";
                             break;
                         case "searchamount":
-                            baseQuery += " AND RGLNR = @RGBETRAG";
+                            baseQuery += " AND RGBETRAG = @searchamount";
                             break;
                         case "searchdebitorrequest":
                             baseQuery += " AND Materialanforderung = @searchdebitorrequest";
                             break;
                         case "searchdebitorreference":
-                            baseQuery += " AND [Ihr Zeichen] = @searchdebitorreference";
+                            baseQuery += " AND ihrzeichen = @searchdebitorreference";
                             break;
-                        case "searchediinvoice":
-                            baseQuery += " AND [EDI Status] = @searchediinvoice";
+                        case "searchcreatedby":
+                            baseQuery += " AND createdby = @searchcreatedby";
                             break;
                         case "searchjobnr":
                             baseQuery += " AND job_nr = @searchjobnr";
@@ -224,7 +229,7 @@ namespace RGLNR_Interface.Controllers
                 if (userPermissionsDataAreaIds.Any())
                 {
                     var dataAreaIds = string.Join(", ", userPermissionsDataAreaIds);
-                    baseQuery += $" AND DataAreaId IN ({@dataAreaIds})";
+                    baseQuery += $" AND AXRK_DataAreaId IN ({@dataAreaIds})";
                 }
 
                 string dataQuery;
@@ -235,9 +240,9 @@ namespace RGLNR_Interface.Controllers
                     var orderDirection = orderDir == "desc" ? "DESC" : "ASC";
 
                     dataQuery = $@"
-                    SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
-                           [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, 
-                           [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] 
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                           [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
+                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME]
                     {baseQuery}
                     ORDER BY {orderColumn} {orderDirection} 
                     OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
@@ -245,9 +250,9 @@ namespace RGLNR_Interface.Controllers
                 else
                 {
                     dataQuery = $@"
-                    SELECT [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
-                           [Rechnungsbetrag], [Materialanforderung], [Ihr Zeichen] AS IhrZeichen, 
-                           [EDI Status] AS EDIStatus, [profile_name], [job_nr], [status] 
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                           [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
+                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME]
                     {baseQuery}
                     ORDER BY RGLNR ASC  -- Default order by RGLNR ASC
                     OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
@@ -273,12 +278,13 @@ namespace RGLNR_Interface.Controllers
                     orderColumnIndex,
                     orderDir,
                     searchValue = $"%{searchValue}%",
+                    searchziel = searchField == "searchziel" ? searchValue : (object)DBNull.Value,
                     searchRGLNR = searchField == "searchrglnr" ? searchValue : (object)DBNull.Value,
                     Rechnung = searchField == "searchinvoice" ? searchValue : (object)DBNull.Value,
                     RGBETRAG = searchField == "searchamount" ? searchValue : (object)DBNull.Value,
                     searchdebitorrequest = searchField == "searchdebitorrequest" ? searchValue : (object)DBNull.Value,
                     searchdebitorreference = searchField == "searchdebitorreference" ? searchValue : (object)DBNull.Value,
-                    searchediinvoice = searchField == "searchediinvoice" ? searchValue : (object)DBNull.Value,
+                    searchcreatedby = searchField == "searchcreatedby" ? searchValue : (object)DBNull.Value,
                     searchjobnr = searchField == "searchjobnr" ? searchValue : (object)DBNull.Value,
                     searchlobsterprofile = searchField == "searchlobsterprofile" ? searchValue : (object)DBNull.Value,
                     searchlobsterstatus = searchField == "searchlobsterstatus" ? searchValue : (object)DBNull.Value
@@ -288,7 +294,7 @@ namespace RGLNR_Interface.Controllers
 
                 var recordsFiltered = await db.ExecuteScalarAsync<int>(filteredCountQuery, parameters);
 
-                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BEN]");
+                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BENTest]");
                 db.Close();
 
                 return Json(new { draw, recordsFiltered, recordsTotal, data });
@@ -299,7 +305,7 @@ namespace RGLNR_Interface.Controllers
         [HttpPost]
         public IActionResult GetInvoiceDetails(string invoiceId)
         {
-            string query = "SELECT * FROM [EndToEnd_BEN] WHERE Rechnung = @InvoiceId ORDER BY entry_date"; 
+            string query = "SELECT * FROM [EndToEnd_BENTest] WHERE Rechnung = @InvoiceId ORDER BY entry_date"; 
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var parameters = new { InvoiceId = invoiceId };
