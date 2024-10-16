@@ -99,7 +99,7 @@ namespace RGLNR_Interface.Controllers
                     "Materialanforderung",
                     "ihrzeichen",
                     "createdby",
-                    "transfer_date",
+                    "CREATEDDATETIME",
                     "job_nr",
                     "profile_name",
                     "status",
@@ -292,7 +292,7 @@ namespace RGLNR_Interface.Controllers
                     var orderDirection = orderDir == "desc" ? "DESC" : "ASC";
 
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [transfer_date], 
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
                            [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}
@@ -302,7 +302,7 @@ namespace RGLNR_Interface.Controllers
                 else
                 {
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [transfer_date],
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
                            [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}

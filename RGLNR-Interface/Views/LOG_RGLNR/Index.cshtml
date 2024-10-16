@@ -180,14 +180,14 @@
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnungsliste</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnung</th>
-                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Datum</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Buchung</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Fällig</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Bestätigung</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Betrag</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Anforderung Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitorenreferenz</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Erstellt Von</th>
-                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Übertragungsdatum</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Erstellungsdatum</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Job Nummer</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Lobster Profil</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tr-lg">Lobster Status</th>
@@ -654,7 +654,7 @@
                     { "data": "ihrzeichen" },
                     { "data": "createdby" },
                     {
-                        "data": "transfer_date", "render": function (data) {
+                        "data": "createddatetime", "render": function (data) {
                             if (!moment(data).isValid()) {
                                 return ''
                             } else {
@@ -765,10 +765,10 @@
                             <p><strong>Rechnungsliste:</strong> ${data.rglnr ? data.rglnr : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Debitorenkonto:</strong> ${data.debitorenkonto ? data.debitorenkonto : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>HOS:</strong> ${data.hos ? data.hos : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
-                            <p><strong>Datum:</strong> ${data.datum ? moment(data.datum).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Kein Datum verfügbar</span>'}</p>
+                            <p><strong>Erstellungsdatum:</strong> ${data.createddatetime ? moment(data.createddatetime).format('DD.MM.YYYY HH:mm.ss') : '<span class="text-gray-500 italic">Erstellungsdatum nicht verfügbar</span>'}</p>
+                            <p><strong>Buchung:</strong> ${data.datum ? moment(data.datum).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Kein Datum verfügbar</span>'}</p>
                             <p><strong>Fällig:</strong> ${data.fällig ? moment(data.fällig).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Fälligkeitsdatum nicht festgelegt</span>'}</p>
                             <p><strong>Bestätigung:</strong> ${data.entry_date ? moment(data.entry_date).format('DD.MM.YYYY HH:mm') : '<span class="text-gray-500 italic">Bestätigung nicht verfügbar</span>'}</p>
-                            <p><strong>Übertragung:</strong> ${data.transfer_date ? moment(data.transfer_date).format('DD.MM.YYYY HH:mm') : '<span class="text-gray-500 italic">Bestätigung nicht verfügbar</span>'}</p>
                             <p><strong>Betrag:</strong> ${data.rechnungsbetrag ? data.rechnungsbetrag : '<span class="text-gray-500 italic">Betrag nicht angegeben</span>'}</p>
                             <p><strong>Anforderung Debitor:</strong> ${data.materialanforderung ? data.materialanforderung : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Debitorenreferenz:</strong> ${data.ihrzeichen ? data.ihrzeichen : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
@@ -783,7 +783,6 @@
                             <p><strong>Email Von:</strong> ${data.emailfrom ? data.emailfrom : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Email Zu:</strong> ${data.emailto ? data.emailto : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Port:</strong> ${data.customport ? data.customport : '<span class="text-gray-500 italic">Kein Port verfügbar</span>'}</p>
-                            <p><strong>Erstellungsdatum:</strong> ${data.createddatetime ? moment(data.createddatetime).format('DD.MM.YYYY HH:mm.ss') : '<span class="text-gray-500 italic">Erstellungsdatum nicht verfügbar</span>'}</p>
                         </div>
 
                     </div>
