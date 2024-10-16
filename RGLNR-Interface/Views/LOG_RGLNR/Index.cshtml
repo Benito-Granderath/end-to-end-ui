@@ -177,6 +177,7 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 rounded-t-lg">
             <tr class="rounded-t-lg">
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Ziel</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnungsliste</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnung</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Datum</th>
@@ -186,6 +187,7 @@
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Anforderung Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitorenreferenz</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Erstellt Von</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Übertragungsdatum</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Job Nummer</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Lobster Profil</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tr-lg">Lobster Status</th>
@@ -383,13 +385,13 @@
                                     <button type="button" data-field="searchziel" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ziel</button>
                                 </li>
                                 <li>
+                                    <button type="button" data-field="searchdebitor" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Debitorenkonto</button>
+                                </li>
+                                <li>
                                     <button type="button" data-field="searchrglnr" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Rechnungsliste</button>
                                 </li>
                                 <li>
                                     <button type="button" data-field="searchinvoice" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Rechnungsnummer</button>
-                                </li>
-                                <li>
-                                    <button type="button" data-field="searchamount" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Betrag</button>
                                 </li>
                                 <li>
                                     <button type="button" data-field="searchdebitorrequest" class="dropdown-search-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Anforderung Debitor</button>
@@ -412,7 +414,7 @@
                             </ul>
                         </div>
                         <div class="relative w-full">
-                            <input type="search" id="dynamicInput" class="block p-2 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Suchen..." autocomplete="off" required />
+                            <input type="search" id="dynamicInput" class="block p-2 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" title="Suchen oder 'NONE' für leere Werte eingeben" placeholder="Suchen..." autocomplete="off"/>
                             <button id="activateSearch" type="submit" class="absolute top-0 right-0 p-2 text-sm font-medium h-full text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 19l-4-4M15 8a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/>
@@ -439,7 +441,13 @@
                     });
 
                     document.getElementById("generalsearchform").addEventListener("submit", function (event) {
-                        event.preventDefault();  
+                        event.preventDefault();
+                        var dynamicInputValue = $("dynamicInput").val();
+                        if (dynamicInputValue === '') {
+                            selectedField = null;
+                            $('#dropdown-button').html('Alle Kategorien' +
+                                '<svg class="w-2 h-2 ml-2" aria-hidden="true" ...></svg>');
+                        }
 
                         table.draw();
                     });
@@ -542,7 +550,7 @@
                 },
                 columnDefs: [
                     {
-                        targets: [4, 10, 11, 12],
+                        targets: [5, 8, 12, 13, 14],
                         visible: false
                     }
                 ],
@@ -552,7 +560,6 @@
                     "url": "@Url.Action("LoadData", "LOG_RGLNR")",
                     "type": "POST",
                     "data": function (d) {
-
                         d.minRGLNR = $("#minRGLNR").val();
                         d.maxRGLNR = $("#maxRGLNR").val();
                         d.pasteInvoices = $("#pasteInvoices").val();
@@ -561,7 +568,8 @@
                         d.searchValue = $("#dynamicInput").val();
                         var startDateStr = document.getElementById('datepicker-range-start').value;
                         var endDateStr = document.getElementById('datepicker-range-end').value;
-
+                        var dynamicInputValue = $("#dynamicInput").val();
+                        d.searchValue = dynamicInputValue === '' ? null : dynamicInputValue;
                         if (startDateStr && endDateStr) {
                             var selectedColumn = document.getElementById('dateColumnFilter').value;
 
@@ -627,13 +635,14 @@
                             return badges || '';
                         }
                     },
+                    { "data": "debitorenkonto" },
                     { "data": "rglnr" },
                     { "data": "rechnung" },
                     { "data": "datum", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     { "data": "fällig", "render": function (data) { return moment(data).format("DD.MM.YYYY"); } },
                     {
                         "data": "entry_date", "render": function (data) {
-                            if (data === "0001-01-01T00:00:00") {
+                            if (!moment(data).isValid()) {
                                 return ''
                             } else {
                                 return moment(data).format("DD.MM.YYYY");
@@ -644,12 +653,21 @@
                     { "data": "materialanforderung" },
                     { "data": "ihrzeichen" },
                     { "data": "createdby" },
+                    {
+                        "data": "transfer_date", "render": function (data) {
+                            if (!moment(data).isValid()) {
+                                return ''
+                            } else {
+                                return moment(data).format("DD.MM.YYYY HH:mm");
+                            }
+                        }
+                    },
                     { "data": "job_nr" },
                     { "data": "profile_name" },
                     { "data": "status" },
 
                 ],
-                "order": [[3, "desc"]],
+                "order": [[4, "desc"]],
                 "deferRender": true,
                 "stripeClasses": [],
                 "rowCallback": function (row, data, index) {
@@ -698,15 +716,15 @@
                 var data = table.row(this).data();
                 if (data) {
                     var invoiceId = data.rechnung;
-
+                    var entry_date = moment(data.entry_date).format('YYYY-MM-DD, HH:mm:ss');
                     $.ajax({
-                        url: '@Url.Action("GetInvoiceDetails", "LOG_RGLNR")', 
-                        type: 'POST',
-                        data: { invoiceId: invoiceId },
-                        success: function (response) {
+                        "url": '@Url.Action("GetInvoiceDetails", "LOG_RGLNR")',
+                        "type": "POST",
+                        "data": { invoiceId, entry_date},
+                        "success": function (response) {
                             showModalWithData(response);
                         },
-                        error: function (xhr, status, error) {
+                        "error": function (xhr, status, error) {
                             console.error('Fehler: ', error);
                         }
                     });
@@ -717,8 +735,8 @@
                 $('#modalTitle').text('Details zu Rechnung: ' + dataArray[0].rechnung);
 
                 var tabsHeader = `
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700" id="tabs" data-tabs-toggle="#tabs-content" role="tablist">
-            `;
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700" id="tabs" data-tabs-toggle="#tabs-content" role="tablist">
+                    `;
                 var tabsContent = '<div id="tabs-content">';
 
                 dataArray.forEach(function (data, index) {
@@ -730,12 +748,11 @@
                         : 'inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300';
 
                     tabsHeader += `
-                <li class="mr-2" role="presentation">
-                    <button class="${tabButtonClass}" id="${tabId}" data-tabs-target="#${contentId}" type="button" role="tab" aria-controls="${contentId}" aria-selected="${index === 0 ? 'true' : 'false'}">
-                        Eintrag ${index + 1} (${moment(data.datum).format('DD.MM.YYYY')})
-                    </button>
-                </li>
-                `;
+                        <li class="mr-2" role="presentation">
+                            <button class="${tabButtonClass}" id="${tabId}" data-tabs-target="#${contentId}" type="button" role="tab" aria-controls="${contentId}" aria-selected="${index === 0 ? 'true' : 'false'}">
+                                Eintrag ${index + 1} (${moment(data.datum).format('DD.MM.YYYY')})
+                            </button>
+                        </li>`;
 
                     var contentClass = index === 0
                         ? 'p-4 bg-gray-50 rounded-lg dark:bg-gray-800'
@@ -746,9 +763,12 @@
                         <div class="border-b-2 pb-4 mb-4">
 
                             <p><strong>Rechnungsliste:</strong> ${data.rglnr ? data.rglnr : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>Debitorenkonto:</strong> ${data.debitorenkonto ? data.debitorenkonto : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
+                            <p><strong>HOS:</strong> ${data.hos ? data.hos : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Datum:</strong> ${data.datum ? moment(data.datum).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Kein Datum verfügbar</span>'}</p>
                             <p><strong>Fällig:</strong> ${data.fällig ? moment(data.fällig).format('DD.MM.YYYY') : '<span class="text-gray-500 italic">Fälligkeitsdatum nicht festgelegt</span>'}</p>
                             <p><strong>Bestätigung:</strong> ${data.entry_date ? moment(data.entry_date).format('DD.MM.YYYY HH:mm') : '<span class="text-gray-500 italic">Bestätigung nicht verfügbar</span>'}</p>
+                            <p><strong>Übertragung:</strong> ${data.transfer_date ? moment(data.transfer_date).format('DD.MM.YYYY HH:mm') : '<span class="text-gray-500 italic">Bestätigung nicht verfügbar</span>'}</p>
                             <p><strong>Betrag:</strong> ${data.rechnungsbetrag ? data.rechnungsbetrag : '<span class="text-gray-500 italic">Betrag nicht angegeben</span>'}</p>
                             <p><strong>Anforderung Debitor:</strong> ${data.materialanforderung ? data.materialanforderung : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>
                             <p><strong>Debitorenreferenz:</strong> ${data.ihrzeichen ? data.ihrzeichen : '<span class="text-gray-500 italic">Nicht verfügbar</span>'}</p>

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Buffers;
 
 
 namespace RGLNR_Interface.Controllers
@@ -78,16 +79,17 @@ namespace RGLNR_Interface.Controllers
                 var endDateFälligStr = HttpContext.Request.Form["faelligEnd"].FirstOrDefault();
                 var startDateBestätigungStr = HttpContext.Request.Form["bestaetigungStart"].FirstOrDefault();
                 var endDateBestätigungStr = HttpContext.Request.Form["bestaetigungEnd"].FirstOrDefault();
-                var searchField = HttpContext.Request.Form["searchField"].FirstOrDefault();
-                var searchValue = HttpContext.Request.Form["searchValue"].FirstOrDefault();
-
                 var invoiceList = !string.IsNullOrEmpty(pasteInvoices)
                     ? pasteInvoices.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(invoice => invoice.Trim()).ToArray()
                     : null;
+                var searchField = HttpContext.Request.Form["searchField"].FirstOrDefault();
+                var searchValueRaw = HttpContext.Request.Form["searchValue"].FirstOrDefault();
+                string searchValue = null;
                 DateTime? parsedStartDate = null, parsedEndDate = null;
                 List<int> userPermissionsDataAreaIds = new List<int>();
                 string[] columnMapping = new string[] {
                     "DESTINATIONTYPE",
+                    "Debitorenkonto",
                     "RGLNR",
                     "Rechnung",
                     "Datum",
@@ -97,6 +99,7 @@ namespace RGLNR_Interface.Controllers
                     "Materialanforderung",
                     "ihrzeichen",
                     "createdby",
+                    "transfer_date",
                     "job_nr",
                     "profile_name",
                     "status",
@@ -160,54 +163,104 @@ namespace RGLNR_Interface.Controllers
                 {
                     baseQuery += " AND RGLNR <= @maxRGLNR";
                 }
-                if (!string.IsNullOrEmpty(searchField) && !string.IsNullOrEmpty(searchValue))
+                
+                if (!string.IsNullOrEmpty(searchValueRaw))
+                {
+                    if (searchValueRaw.Trim().ToLower() == "none")
+                    {
+                        searchValue = "none";
+                    }
+                    else if (searchValueRaw.Contains("*"))
+                    {
+                        searchValue = searchValueRaw.Replace('*', '%');
+                    }
+                    else
+                    {
+                        searchValue = searchValueRaw;
+                    }
+                }
+                else
+                {
+                    searchField = null;
+                }
+                if (!string.IsNullOrEmpty(searchField))
                 {
                     switch (searchField)
                     {
                         case "searchallcategories":
                             baseQuery += @" AND (
-                            DESTINATIONTYPE LIKE @searchValue
-                            OR Method LIKE @searchValue
-                            OR RGLNR LIKE @searchValue
-                            OR Rechnung LIKE @searchValue
-                            OR Materialanforderung LIKE @searchValue
-                            OR ihrzeichen LIKE @searchValue
-                            OR createdby LIKE @searchValue
-                            OR job_nr LIKE @searchValue
-                            OR profile_name LIKE @searchValue
-                            OR status LIKE @searchValue
-                        )";
+                                (DESTINATIONTYPE LIKE @searchValue OR @searchValue IS NULL)
+                                OR (Method LIKE @searchValue OR @searchValue IS NULL)
+                                OR (RGLNR LIKE @searchValue OR @searchValue IS NULL
+                                OR (Debitorenkonto LIKE @searchValue OR @searchValue IS NULL)
+                                OR (Rechnung LIKE @searchValue OR @searchValue IS NULL)
+                                OR (Materialanforderung LIKE @searchValue OR @searchValue IS NULL)
+                                OR (ihrzeichen LIKE @searchValue OR @searchValue IS NULL)
+                                OR (createdby LIKE @searchValue OR @searchValue IS NULL)
+                                OR (job_nr LIKE @searchValue OR @searchValue IS NULL)
+                                OR (profile_name LIKE @searchValue OR @searchValue IS NULL)
+                                OR (status LIKE @searchValue OR @searchValue IS NULL)
+                            )";
                             break;
+
                         case "searchziel":
-                            baseQuery += " AND DESTINATIONTYPE = @searchziel OR Method = @searchziel";
+                            baseQuery += searchValue == "none"
+                                ? " AND (Method IS NULL)"
+                                : " AND (DESTINATIONTYPE LIKE @searchziel OR Method LIKE @searchziel)";
                             break;
+
                         case "searchrglnr":
-                            baseQuery += " AND RGLNR = @searchRGLNR";
+                            baseQuery += searchValue == "none"
+                                ? " AND RGLNR IS NULL"
+                                : " AND RGLNR LIKE @searchRGLNR";
                             break;
+                        case "searchdebitor":
+                            baseQuery += searchValue == "none"
+                                ? " AND Debitorenkonto IS NULL"
+                                : " AND Debitorenkonto LIKE @searchdebitor";
+                            break;
+
                         case "searchinvoice":
-                            baseQuery += " AND Rechnung = @searchinvoice";
-                            break;
-                        case "searchamount":
-                            baseQuery += " AND RGBETRAG = @searchamount";
+                            baseQuery += searchValue == "none"
+                                ? " AND Rechnung IS NULL"
+                                : " AND Rechnung LIKE @searchinvoice";
                             break;
                         case "searchdebitorrequest":
-                            baseQuery += " AND Materialanforderung = @searchdebitorrequest";
+                            baseQuery += searchValue == "none"
+                                ? " AND Materialanforderung IS NULL"
+                                : " AND Materialanforderung LIKE @searchdebitorrequest";
                             break;
+
                         case "searchdebitorreference":
-                            baseQuery += " AND ihrzeichen = @searchdebitorreference";
+                            baseQuery += searchValue == "none"
+                                ? " AND ihrzeichen IS NULL"
+                                : " AND ihrzeichen LIKE @searchdebitorreference";
                             break;
+
                         case "searchcreatedby":
-                            baseQuery += " AND createdby = @searchcreatedby";
+                            baseQuery += searchValue == "none"
+                                ? " AND createdby IS NULL"
+                                : " AND createdby LIKE @searchcreatedby";
                             break;
+
                         case "searchjobnr":
-                            baseQuery += " AND job_nr = @searchjobnr";
+                            baseQuery += searchValue == "none"
+                                ? " AND job_nr IS NULL"
+                                : " AND job_nr LIKE @searchjobnr";
                             break;
+
                         case "searchlobsterprofile":
-                            baseQuery += " AND profile_name = @searchlobsterprofile";
+                            baseQuery += searchValue == "none"
+                                ? " AND profile_name IS NULL"
+                                : " AND profile_name LIKE @searchlobsterprofile";
                             break;
+
                         case "searchlobsterstatus":
-                            baseQuery += " AND status = @searchlobsterstatus";
+                            baseQuery += searchValue == "none"
+                                ? " AND status IS NULL"
+                                : " AND status LIKE @searchlobsterstatus";
                             break;
+
                         default:
                             break;
                     }
@@ -215,7 +268,7 @@ namespace RGLNR_Interface.Controllers
 
                 if (invoiceList != null && invoiceList.Length > 0)
                 {
-                    baseQuery += " AND Rechnung IN @invoiceList OR RGLNR IN @invoiceList";
+                    baseQuery += " AND Rechnung IN @invoiceList";
                 }
                 if (parsedStartDateFällig.HasValue && parsedEndDateFällig.HasValue)
                 {
@@ -231,7 +284,6 @@ namespace RGLNR_Interface.Controllers
                     var dataAreaIds = string.Join(", ", userPermissionsDataAreaIds);
                     baseQuery += $" AND AXRK_DataAreaId IN ({@dataAreaIds})";
                 }
-
                 string dataQuery;
 
                 if (int.TryParse(orderColumnIndex, out int columnIndex) && columnIndex >= 0 && columnIndex < columnMapping.Length)
@@ -240,9 +292,9 @@ namespace RGLNR_Interface.Controllers
                     var orderDirection = orderDir == "desc" ? "DESC" : "ASC";
 
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [transfer_date], 
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
-                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME]
+                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}
                     ORDER BY {orderColumn} {orderDirection} 
                     OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
@@ -250,9 +302,9 @@ namespace RGLNR_Interface.Controllers
                 else
                 {
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], 
+                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date], [transfer_date],
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
-                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME]
+                           [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}
                     ORDER BY RGLNR ASC  -- Default order by RGLNR ASC
                     OFFSET @start ROWS FETCH NEXT @length ROWS ONLY";
@@ -277,11 +329,11 @@ namespace RGLNR_Interface.Controllers
                     length,
                     orderColumnIndex,
                     orderDir,
-                    searchValue = $"%{searchValue}%",
+                    searchValue,
                     searchziel = searchField == "searchziel" ? searchValue : (object)DBNull.Value,
                     searchRGLNR = searchField == "searchrglnr" ? searchValue : (object)DBNull.Value,
-                    Rechnung = searchField == "searchinvoice" ? searchValue : (object)DBNull.Value,
-                    RGBETRAG = searchField == "searchamount" ? searchValue : (object)DBNull.Value,
+                    searchdebitor = searchField == "searchdebitor" ? searchValue : (object)DBNull.Value,
+                    searchinvoice = searchField == "searchinvoice" ? searchValue : (object)DBNull.Value,
                     searchdebitorrequest = searchField == "searchdebitorrequest" ? searchValue : (object)DBNull.Value,
                     searchdebitorreference = searchField == "searchdebitorreference" ? searchValue : (object)DBNull.Value,
                     searchcreatedby = searchField == "searchcreatedby" ? searchValue : (object)DBNull.Value,
@@ -303,19 +355,16 @@ namespace RGLNR_Interface.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetInvoiceDetails(string invoiceId)
+        public IActionResult GetInvoiceDetails(string invoiceId, DateTime? entry_date)
         {
-            string query = "SELECT * FROM [EndToEnd_BENTest] WHERE Rechnung = @InvoiceId ORDER BY entry_date"; 
+            string query = "SELECT * FROM [EndToEnd_BENTest] WHERE Rechnung = @InvoiceId ORDER BY CASE WHEN entry_date = @entry_date THEN 0 ELSE 1 END, entry_date";
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
-                var parameters = new { InvoiceId = invoiceId };
+                var parameters = new { invoiceId, entry_date };
                 var results = connection.Query<LOG_RGLNR_Model>(query, parameters).ToList();
 
                 return Json(results);
             }
         }
-
-
-
     }
 }

@@ -6,7 +6,8 @@
         public string Rechnung { get; set; }
         public DateTime Datum { get; set; }
         public DateTime Fällig { get; set; }
-        public DateTime entry_date { get; set; }
+        public DateTime? entry_date { get; set; }
+        public DateTime? transfer_date { get; set; }
         public decimal Rechnungsbetrag { get; set; }
         public string profile_name { get; set; }
         public decimal job_nr { get; set; }
@@ -20,7 +21,8 @@
         public string EMAILFROM { get; set; }
         public string EMAILTO { get; set; }
         public string CREATEDDATETIME { get; set; }
-
+        public string HOS { get; set; }
+        public string Debitorenkonto { get; set; }
 
     }
 }
