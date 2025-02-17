@@ -149,7 +149,7 @@ namespace RGLNR_Interface.Controllers
                     parsedEndDateBestätigung = bestaetigungEnd;
                 }
 
-                string baseQuery = @"FROM [wsmb].[dbo].[EndToEnd_BENTest] WHERE 1=1";
+                string baseQuery = @"FROM [wsmb].[dbo].[END_TO_END_STAGING] WHERE 1=1";
 
                 if (parsedStartDate.HasValue && parsedEndDate.HasValue)
                 {
@@ -191,7 +191,7 @@ namespace RGLNR_Interface.Controllers
                             baseQuery += @" AND (
                                 (DESTINATIONTYPE LIKE @searchValue OR @searchValue IS NULL)
                                 OR (Method LIKE @searchValue OR @searchValue IS NULL)
-                                OR (RGLNR LIKE @searchValue OR @searchValue IS NULL
+                                OR (RGLNR LIKE @searchValue OR @searchValue IS NULL)
                                 OR (Debitorenkonto LIKE @searchValue OR @searchValue IS NULL)
                                 OR (Rechnung LIKE @searchValue OR @searchValue IS NULL)
                                 OR (Materialanforderung LIKE @searchValue OR @searchValue IS NULL)
@@ -346,7 +346,7 @@ namespace RGLNR_Interface.Controllers
 
                 var recordsFiltered = await db.ExecuteScalarAsync<int>(filteredCountQuery, parameters);
 
-                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[EndToEnd_BENTest]");
+                var recordsTotal = await db.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM [wsmb].[dbo].[END_TO_END_STAGING]");
                 db.Close();
 
                 return Json(new { draw, recordsFiltered, recordsTotal, data });
@@ -357,7 +357,7 @@ namespace RGLNR_Interface.Controllers
         [HttpPost]
         public IActionResult GetInvoiceDetails(string invoiceId, DateTime? entry_date)
         {
-            string query = "SELECT * FROM [EndToEnd_BENTest] WHERE Rechnung = @InvoiceId ORDER BY CASE WHEN entry_date = @entry_date THEN 0 ELSE 1 END, entry_date";
+            string query = "SELECT * FROM [END_TO_END_STAGING] WHERE Rechnung = @InvoiceId ORDER BY CASE WHEN entry_date = @entry_date THEN 0 ELSE 1 END, entry_date";
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var parameters = new { invoiceId, entry_date };
