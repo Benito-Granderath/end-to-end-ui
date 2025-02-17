@@ -3,6 +3,11 @@
 ###############################################################################
 * text=auto
 
+**/node_modules/** linguist-vendored
+**/*.css linguist-generated
+**/*.min.css linguist-generated
+
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
