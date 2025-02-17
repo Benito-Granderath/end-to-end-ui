@@ -7,6 +7,10 @@
 **/*.css linguist-generated
 **/*.min.css linguist-generated
 
+**/node_modules/** linguist-vendored
+**/dist/** linguist-vendored
+**/vendor/** linguist-vendored
+**/*.min.js linguist-generated
 
 ###############################################################################
 # Set default behavior for command prompt diff.
