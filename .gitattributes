@@ -10,6 +10,7 @@
 **/node_modules/** linguist-vendored
 **/dist/** linguist-vendored
 **/vendor/** linguist-vendored
+**/*.js linguist-generated
 **/*.min.js linguist-generated
 
 ###############################################################################
