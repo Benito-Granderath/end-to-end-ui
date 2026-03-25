@@ -14,6 +14,8 @@
         public string Materialanforderung { get; set; }
         public string ihrzeichen { get; set; } 
         public string DestinationType { get; set; }
+        public string Method { get; set; }
+        public string? Source { get; set; }
         public string createdby { get; set; }
         public string CUSTOMPORT { get; set; }
         public string PRINTER { get; set; }

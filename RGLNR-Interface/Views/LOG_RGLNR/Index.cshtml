@@ -174,7 +174,7 @@
     <table id="logRGLNRTable" class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 rounded-t-lg">
             <tr class="rounded-t-lg">
-                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Ziel</th>
+                <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200 rounded-tl-lg">Flow</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Debitor</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnungsliste</th>
                 <th class="px-6 py-3 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-200">Rechnung</th>
@@ -622,15 +622,74 @@
                     {
                         "data": null,
                         "render": function (data, type, row) {
-                            var badges = '';
-                            const dest = data.destinationType
-                            if (data.destinationType) {
-                                badges += `<span class="text-white bg-gradient-to-r from-blue-400 via-blue-450 to-blue-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 rounded px-2 py-1 mr-1">${dest}</span>`;
+                            const destinationBadges = [];
+                            const destinationKeys = new Set();
+                            const source = data.source;
+
+                            if (source) {
+                                const normalizedSource = source.toUpperCase();
+                                const sourceBadgeClass = 'inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold tracking-wide';
+                                const sourceBadgeStyle = normalizedSource === 'D365'
+                                    ? 'background-color:#F5F3FF;border-color:#DDD6FE;color:#6D28D9;'
+                                    : 'background-color:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8;';
+
+                                var sourceBadge = `<span class="${sourceBadgeClass}" style="${sourceBadgeStyle}">${normalizedSource}</span>`;
+                            } else {
+                                var sourceBadge = '<span class="inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold tracking-wide" style="background-color:#F9FAFB;border-color:#E5E7EB;color:#6B7280;">N/A</span>';
+                            }
+
+                            function buildDestinationBadge(label) {
+                                const normalizedLabel = (label || '').toLowerCase();
+                                let style = 'background-color:#374151;color:#FFFFFF;';
+
+                                if (normalizedLabel === 'printer') {
+                                    style = 'background-color:#2563EB;color:#FFFFFF;';
+                                } else if (normalizedLabel === 'email') {
+                                    style = 'background-color:#059669;color:#FFFFFF;';
+                                } else if (normalizedLabel === 'customport') {
+                                    style = 'background-color:#EA580C;color:#FFFFFF;';
+                                } else if (normalizedLabel === 'edi') {
+                                    style = 'background-color:#7C3AED;color:#FFFFFF;';
+                                } else if (normalizedLabel === 'unbekannt') {
+                                    style = 'background-color:#9CA3AF;color:#FFFFFF;';
+                                }
+
+                                return `<span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold tracking-wide" style="${style}">${label}</span>`;
+                            }
+
+                            function addDestinationBadge(label) {
+                                const key = (label || '').trim().toLowerCase();
+                                if (!key || destinationKeys.has(key)) {
+                                    return;
+                                }
+
+                                destinationKeys.add(key);
+                                destinationBadges.push(buildDestinationBadge(label));
+                            }
+
+                            const method = data.method ? data.method.toLowerCase() : '';
+
+                            if (method === 'edi') {
+                                addDestinationBadge('EDI');
+                            } else if (method === 'lasernet' && data.destinationType) {
+                                addDestinationBadge(data.destinationType);
+                            } else if (data.destinationType) {
+                                addDestinationBadge(data.destinationType);
                             }
                             if (data.profile_name) {
-                                badges += '<span class="text-white bg-gradient-to-r from-purple-400 via-purple-450 to-purple-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 px-2 py-1 rounded mr-1">EDI</span>';
+                                addDestinationBadge('EDI');
                             }
-                            return badges || '';
+
+                            if (!destinationBadges.length) {
+                                addDestinationBadge('Unbekannt');
+                            }
+
+                            return `
+                                <div class="flex items-center gap-1 whitespace-nowrap">
+                                    ${sourceBadge}
+                                    <span class="px-1 text-sm font-semibold text-slate-400">&rarr;</span>
+                                    ${destinationBadges.join('<span class="px-0.5 text-xs text-slate-300">+</span>')}
+                                </div>`;
                         }
                     },
                     { "data": "debitorenkonto" },

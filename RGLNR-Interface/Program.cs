@@ -1,22 +1,25 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using RGLNR_Interface.Models;
+using RGLNR_Interface.Middleware;
 using RGLNR_Interface.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-#pragma warning disable CA1416 // Plattformkompatibilität überprüfen
+#pragma warning disable CA1416 // Plattformkompatibilitï¿½t ï¿½berprï¿½fen
 
 
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new ValidateSidAttribute());
 });
+builder.Services.Configure<LocalTestingOptions>(
+    builder.Configuration.GetSection(LocalTestingOptions.SectionName));
 builder.Services.AddScoped<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ActiveDirectorySearch>();
+builder.Services.AddScoped<ILocalTestingContext, LocalTestingContext>();
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme);
 builder.Services.AddAuthorization();
 
@@ -33,6 +36,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseMiddleware<LocalTestingUserMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

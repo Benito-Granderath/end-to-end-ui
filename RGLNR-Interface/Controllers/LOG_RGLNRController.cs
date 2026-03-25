@@ -4,14 +4,7 @@ using Microsoft.Data.SqlClient;
 using RGLNR_Interface.Models;
 using System.Data;
 using System.Globalization;
-using Microsoft.Extensions.Configuration;
 using RGLNR_Interface.Services;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Buffers;
-
 
 namespace RGLNR_Interface.Controllers
 {
@@ -19,23 +12,54 @@ namespace RGLNR_Interface.Controllers
     {
         private readonly PermissionService _permissionService;
         private readonly IConfiguration _configuration;
-        private readonly ActiveDirectorySearch _adService;
-        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ActiveDirectorySearch adService)
+        private readonly ILocalTestingContext _localTestingContext;
+
+        public LOG_RGLNRController(IConfiguration configuration, ILogger<LOG_RGLNRController> logger, ILocalTestingContext localTestingContext)
         {
             _permissionService = new PermissionService(new ActiveDirectorySearch());
             _configuration = configuration;
-            _adService = adService;
+            _localTestingContext = localTestingContext;
         }
+
+        private bool IsLocalTestingEnabled()
+        {
+            return _localTestingContext.IsEnabled;
+        }
+
+        private string GetEffectiveUserName()
+        {
+            if (IsLocalTestingEnabled())
+            {
+                return _localTestingContext.UserName;
+            }
+
+            return User.Identity?.Name ?? string.Empty;
+        }
+
+        private async Task<IEnumerable<UserPermission>> GetEffectivePermissionsAsync(string username)
+        {
+            if (IsLocalTestingEnabled())
+            {
+                return _localTestingContext.Permissions.Select((description, index) => new UserPermission
+                {
+                    permissionID = index + 1,
+                    description = description
+                });
+            }
+
+            return await _permissionService.GetUserPermissionsAsync(username);
+        }
+
         public async Task<IActionResult> Index()
         {
 
             if (User.Identity.IsAuthenticated)
             {
-                string sAMAccountName = GetSamAccountName(User.Identity.Name);
+                string sAMAccountName = GetSamAccountName(GetEffectiveUserName());
                 ViewBag.UserName = sAMAccountName;
 
 
-                var permissions = await _permissionService.GetUserPermissionsAsync(sAMAccountName);
+                var permissions = await GetEffectivePermissionsAsync(sAMAccountName);
 
                 if (permissions == null || !permissions.Any())
                 {
@@ -107,8 +131,8 @@ namespace RGLNR_Interface.Controllers
 
                 if (companyPrefixParsed && companyPrefix == -1)
                 {
-                    string username = User.Identity.Name;
-                    var permissions = await _permissionService.GetUserPermissionsAsync(username);
+                    string username = GetSamAccountName(GetEffectiveUserName());
+                    var permissions = await GetEffectivePermissionsAsync(username);
 
                     userPermissionsDataAreaIds = permissions.Select(p => p.description).ToList();
                 }
@@ -292,7 +316,7 @@ namespace RGLNR_Interface.Controllers
                     var orderDirection = orderDir == "desc" ? "DESC" : "ASC";
 
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
+                    SELECT [DESTINATIONTYPE], [Method], [source], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
                            [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}
@@ -302,7 +326,7 @@ namespace RGLNR_Interface.Controllers
                 else
                 {
                     dataQuery = $@"
-                    SELECT [DESTINATIONTYPE], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
+                    SELECT [DESTINATIONTYPE], [Method], [source], [RGLNR], [Rechnung], [Datum], [Fällig], [entry_date],
                            [Rechnungsbetrag], [Materialanforderung], [ihrzeichen], [createdby], [job_nr],
                            [profile_name], [status], [CUSTOMPORT], [PRINTER], [EMAILFROM], [EMAILTO], [CREATEDDATETIME], [HOS], [Debitorenkonto]
                     {baseQuery}

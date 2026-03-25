@@ -1,5 +1,16 @@
 {
   "profiles": {
+    "LocalTesting": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "windowsAuthentication": false,
+      "anonymousAuthentication": true,
+      "dotnetRunMessages": "true",
+      "applicationUrl": "http://localhost:5055"
+    },
     "Kestrel": {
       "commandName": "Project",
       "launchBrowser": true,
