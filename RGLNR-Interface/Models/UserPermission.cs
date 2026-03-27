@@ -1,10 +1,8 @@
-﻿namespace RGLNR_Interface.Models
+namespace RGLNR_Interface.Models
 {
     public class UserPermission
     {
-        public int permissionID { get; set; }
-        public int description { get; set; }
-
+        public int PermissionId { get; set; }
+        public int MandantId { get; set; }
     }
-
 }

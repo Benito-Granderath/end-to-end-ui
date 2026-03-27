@@ -1,23 +1,24 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using Microsoft.AspNetCore.Authentication.Negotiate;
+using RGLNR_Interface.Models;
+using RGLNR_Interface.Middleware;
 using RGLNR_Interface.Services;
-
+using RGLNR_Interface.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#pragma warning disable CA1416 // Plattformkompatibilität überprüfen
-
-
+builder.Services.AddScoped<EnsureAuthenticatedFilter>();
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.Add(new ValidateSidAttribute());
+    options.Filters.AddService<EnsureAuthenticatedFilter>();
 });
-builder.Services.AddScoped<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<ActiveDirectorySearch>();
+builder.Services.Configure<LocalTestingOptions>(
+    builder.Configuration.GetSection(LocalTestingOptions.SectionName));
+builder.Services.AddScoped<IActiveDirectoryService, ActiveDirectoryService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IStagingDataService, StagingDataService>();
+builder.Services.AddScoped<ILocalTestingContext, LocalTestingContext>();
+#pragma warning disable CA1416 // Platform compatibility
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults.AuthenticationScheme);
+#pragma warning restore CA1416
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -33,6 +34,10 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+if (app.Environment.IsDevelopment())
+{
+    app.UseMiddleware<LocalTestingUserMiddleware>();
+}
 app.UseAuthorization();
 
 app.MapControllerRoute(

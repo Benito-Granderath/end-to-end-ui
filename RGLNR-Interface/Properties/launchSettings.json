@@ -1,10 +1,23 @@
 {
   "profiles": {
+    "LocalTesting": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "LocalTesting__Enabled": "true"
+      },
+      "windowsAuthentication": false,
+      "anonymousAuthentication": true,
+      "dotnetRunMessages": "true",
+      "applicationUrl": "http://localhost:5055"
+    },
     "Kestrel": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "LocalTesting__Enabled": "false"
       },
       "windowsAuthentication": true,
       "anonymousAuthentication": false,
@@ -17,7 +30,8 @@
       "launchUrl": "https://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "https://localhost:5001"
+        "ASPNETCORE_URLS": "https://localhost:5001",
+        "LocalTesting__Enabled": "false"
       },
       "distributionName": ""
     },
@@ -25,7 +39,8 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "LocalTesting__Enabled": "false"
       },
       "applicationUrl": "http://localhost:5000;https://localhost:5001"
     }
